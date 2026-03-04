@@ -69,7 +69,7 @@ export default function DevProfileClient({ building, enhanced, topRepos, visits,
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isClaimed, setIsClaimed] = useState(initialClaimed);
 
-  const accentColor = useMemo(() => getBuildingColor(building.login, building.district), [building.login, building.district]);
+  const accentColor = useMemo(() => getBuildingColor(building.login), [building.login]);
 
   const layout = useMemo(
     () => generateSingleBuildingLayout(building),
@@ -123,7 +123,6 @@ export default function DevProfileClient({ building, enhanced, topRepos, visits,
         <div className="flex-1">
           <CityCanvas
             buildings={layout.buildings}
-            districts={layout.districts}
             theme={theme}
           />
 

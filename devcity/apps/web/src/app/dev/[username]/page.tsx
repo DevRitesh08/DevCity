@@ -49,7 +49,7 @@ async function fetchDevData(username: string): Promise<DevData | null> {
       publicRepos: stats.public_repos,
       totalStars: stats.total_stars,
       followers: stats.followers,
-    }, user.login);
+    });
 
     // Infer district from top repos
     const langCount: Record<string, number> = {};

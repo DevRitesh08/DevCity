@@ -86,6 +86,12 @@ export function computeBuildingDimensions(input: BuildingInput): BuildingDimensi
     0.95
   );
 
+  // ── Glow strength (0–1.5, from followers) ──
+  const glowStrength = clamp(followerFactor * 1.5, 0, 1.5);
+
+  // ── Window density (0.1–0.8, from stars) ──
+  const windowDensity = clamp(0.1 + starFactor * 0.7, 0.1, 0.8);
+
   return {
     height: Math.round(height * 10) / 10,
     width: Math.round(width * 10) / 10,
@@ -94,6 +100,8 @@ export function computeBuildingDimensions(input: BuildingInput): BuildingDimensi
     windowsPerFloor,
     sideWindowsPerFloor,
     litPercentage: Math.round(litPercentage * 100) / 100,
+    glowStrength: Math.round(glowStrength * 100) / 100,
+    windowDensity: Math.round(windowDensity * 100) / 100,
   };
 }
 
