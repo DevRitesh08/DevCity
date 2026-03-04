@@ -12,12 +12,15 @@ interface CitySceneProps {
   buildings: CityBuilding[];
   theme?: string;
   onBuildingClick?: (login: string) => void;
+  /** Map of login → CI health score (0–1) */
+  healthScores?: Record<string, number>;
 }
 
 export default function CityScene({
   buildings,
   theme = "midnight",
   onBuildingClick,
+  healthScores,
 }: CitySceneProps) {
   // Memoize building positions to avoid recalculation
   const positionedBuildings = useMemo(
@@ -40,6 +43,7 @@ export default function CityScene({
           position={[building.x, 0, building.z]}
           theme={theme}
           onClick={() => onBuildingClick?.(building.login)}
+          healthScore={healthScores?.[building.login]}
         />
       ))}
     </group>
