@@ -25,16 +25,16 @@ interface DistrictZone {
   angle: number;
 }
 
-const DISTRICT_ZONES: DistrictZone[] = [
-  { name: "frontend",    displayName: "Frontend Quarter",    color: "#64b5f6", angle: 0 },
-  { name: "backend",     displayName: "Backend District",    color: "#c8e64a", angle: Math.PI * 0.4 },
-  { name: "fullstack",   displayName: "Fullstack Heights",   color: "#ffd93d", angle: Math.PI * 0.8 },
-  { name: "devops",      displayName: "DevOps Industrial",   color: "#ff8a65", angle: Math.PI * 1.2 },
-  { name: "mobile",      displayName: "Mobile Row",          color: "#e040fb", angle: Math.PI * 1.6 },
-  { name: "data",        displayName: "Data Lake",           color: "#4fc3f7", angle: Math.PI * 0.2 },
-  { name: "ai-ml",       displayName: "AI Research Park",    color: "#f06292", angle: Math.PI * 0.6 },
-  { name: "security",    displayName: "Security Compound",   color: "#ff6b6b", angle: Math.PI * 1.0 },
-  { name: "gamedev",     displayName: "Game Arcade",         color: "#aed581", angle: Math.PI * 1.4 },
+export const DISTRICT_ZONES: DistrictZone[] = [
+  { name: "frontend", displayName: "Frontend Quarter", color: "#64b5f6", angle: 0 },
+  { name: "backend", displayName: "Backend District", color: "#c8e64a", angle: Math.PI * 0.4 },
+  { name: "fullstack", displayName: "Fullstack Heights", color: "#ffd93d", angle: Math.PI * 0.8 },
+  { name: "devops", displayName: "DevOps Industrial", color: "#ff8a65", angle: Math.PI * 1.2 },
+  { name: "mobile", displayName: "Mobile Row", color: "#e040fb", angle: Math.PI * 1.6 },
+  { name: "data", displayName: "Data Lake", color: "#4fc3f7", angle: Math.PI * 0.2 },
+  { name: "ai-ml", displayName: "AI Research Park", color: "#f06292", angle: Math.PI * 0.6 },
+  { name: "security", displayName: "Security Compound", color: "#ff6b6b", angle: Math.PI * 1.0 },
+  { name: "gamedev", displayName: "Game Arcade", color: "#aed581", angle: Math.PI * 1.4 },
   { name: "open-source", displayName: "Open Source Commons", color: "#6bcb77", angle: Math.PI * 1.8 },
 ];
 

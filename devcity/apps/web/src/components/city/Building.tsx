@@ -3,9 +3,11 @@
 // Features:
 //   - Massive height scaling from developer stats (up to 800 units)
 //   - Neon edge wireframe outlines for cyberpunk aesthetic
-//   - Glowing windows with warm/cool lit patterns
+//   - Glowing windows with warm/cool lit patterns (star-based density)
 //   - Rooftop beacon lights on tall buildings (>150 height)
-//   - Neon base ring glow
+//   - Follower-based glow halo
+//   - District-based accent coloring
+//   - Advanced features: spire (stars>500), campus (repos>120), crown (top 1%)
 //   - Hover interactions with glow pulse
 //   - Deterministic appearance from username seed
 
@@ -16,7 +18,7 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { CityBuilding } from "@devcity/types";
-import { seededRandom, getBuildingColor } from "@/lib/building";
+import { seededRandom, getBuildingColor, DISTRICT_COLORS } from "@/lib/building";
 
 // ─── Constants ─────────────────────────────────────────────────
 
@@ -47,8 +49,6 @@ interface BuildingProps {
   position: [number, number, number];
   theme: string;
   onClick?: () => void;
-  /** CI health score 0–1 (undefined = no CI data) */
-  healthScore?: number;
 }
 
 // ─── Component ─────────────────────────────────────────────────
@@ -58,18 +58,21 @@ export default function Building({
   position,
   theme: _theme = "midnight", // eslint-disable-line @typescript-eslint/no-unused-vars
   onClick,
-  healthScore,
 }: BuildingProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const beaconRef = useRef<THREE.Mesh>(null);
+  const crownRef = useRef<THREE.Mesh>(null);
 
   const { dimensions, login } = building;
-  const { height, width, depth, floors, windowsPerFloor, sideWindowsPerFloor, litPercentage } =
+  const { height, width, depth, floors, windowsPerFloor, sideWindowsPerFloor, litPercentage, glowStrength } =
     dimensions;
 
-  // Deterministic accent color for this building
-  const accentColor = useMemo(() => getBuildingColor(login), [login]);
+  // Deterministic accent color based on district
+  const accentColor = useMemo(
+    () => getBuildingColor(login, building.district),
+    [login, building.district]
+  );
 
   // ─── Neon Edge Wireframe ───────────────────────────────────
   const edgeGeo = useMemo(() => {
@@ -114,6 +117,46 @@ export default function Building({
   // Track window flicker refs for subtle activity simulation
   const windowRefs = useRef<THREE.Mesh[]>([]);
 
+  // ─── Advanced Feature Flags ─────────────────────────────────
+  // Spire: stars > 500
+  const hasSpire = useMemo(
+    () => building.total_stars > 500,
+    [building.total_stars]
+  );
+
+  // Campus mode: repos > 120 → multi-building cluster
+  const isCampus = useMemo(
+    () => building.public_repos > 120,
+    [building.public_repos]
+  );
+
+  // Monument crown: top 1% rank (rank <= total * 0.01, or rank <= 1 as fallback)
+  const hasMonumentCrown = useMemo(
+    () => building.rank > 0 && building.rank <= 1,
+    [building.rank]
+  );
+
+  // Campus satellite buildings
+  const campusSatellites = useMemo(() => {
+    if (!isCampus) return [];
+    const r = seededRandom(login + "_campus");
+    const count = Math.min(3, Math.floor(building.public_repos / 80));
+    const satellites: { offset: [number, number, number]; scale: number }[] = [];
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2 + r() * 0.5;
+      const dist = width * 0.8 + r() * width * 0.4;
+      satellites.push({
+        offset: [
+          Math.cos(angle) * dist,
+          0,
+          Math.sin(angle) * dist,
+        ],
+        scale: 0.3 + r() * 0.25,
+      });
+    }
+    return satellites;
+  }, [isCampus, login, building.public_repos, width]);
+
   // ─── Animations ─────────────────────────────────────────────
   const emissiveIntensity = useRef(0);
 
@@ -134,6 +177,15 @@ export default function Building({
       const pulse = (Math.sin(clock.elapsedTime * 2 + height) + 1) * 0.5;
       (beaconRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
         1.5 + pulse * 2.5;
+    }
+
+    // Crown animation for top-ranked
+    if (crownRef.current) {
+      const bob = Math.sin(clock.elapsedTime * 1.5) * 1.5;
+      crownRef.current.position.y = height + 8 + bob;
+      crownRef.current.rotation.y = clock.elapsedTime * 0.3;
+      (crownRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
+        1.5 + (Math.sin(clock.elapsedTime * 2) + 1) * 0.75;
     }
 
     // Subtle window flicker — randomly toggle a few windows per second
@@ -238,21 +290,14 @@ export default function Building({
     return meshes;
   }, [width, depth, maxRenderedFloors, windowsPerFloor, sideWindowsPerFloor, litColors]);
 
-  // Determine if this building gets a spire (only 60% of skyscrapers)
-  const hasSpire = useMemo(() => {
-    if (height <= SKYSCRAPER_THRESHOLD) return false;
-    const r = seededRandom(login + "_spire");
-    return r() < 0.6;
-  }, [height, login]);
-
   // ─── Roof Features ─────────────────────────────────────────
 
   const roofFeatures = useMemo(() => {
     const r = seededRandom(login + "_roof");
     const features: { type: "antenna" | "ac"; pos: [number, number, number] }[] = [];
 
-    // Antenna — taller on taller buildings
-    if (r() > 0.3) {
+    // Antenna — deterministic based on stars threshold instead of random
+    if (hasSpire) {
       const antennaHeight = height > SKYSCRAPER_THRESHOLD ? 15 : height > TALL_THRESHOLD ? 10 : 6;
       features.push({
         type: "antenna",
@@ -278,7 +323,7 @@ export default function Building({
     }
 
     return features;
-  }, [login, width, depth, height]);
+  }, [login, width, depth, height, hasSpire]);
 
   // ─── Render ────────────────────────────────────────────────
 
@@ -372,31 +417,23 @@ export default function Building({
         />
       </mesh>
 
-      {/* ── Health aura ring ── */}
-      {healthScore !== undefined && (
-        <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      {/* ── Follower Glow Halo ── */}
+      {glowStrength > 0.05 && (
+        <mesh position={[0, height * 0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry
             args={[
-              Math.max(width, depth) * 0.7,
-              Math.max(width, depth) * 0.7 + 0.8,
+              Math.max(width, depth) * 0.6,
+              Math.max(width, depth) * 0.6 + glowStrength * 2,
               32,
             ]}
           />
           <meshStandardMaterial
-            color={
-              healthScore >= 0.7 ? "#4ade80" :
-              healthScore >= 0.4 ? "#fbbf24" :
-              "#f87171"
-            }
-            emissive={
-              healthScore >= 0.7 ? "#4ade80" :
-              healthScore >= 0.4 ? "#fbbf24" :
-              "#f87171"
-            }
-            emissiveIntensity={0.8}
+            color={accentColor}
+            emissive={accentColor}
+            emissiveIntensity={glowStrength}
             toneMapped={false}
             transparent
-            opacity={0.4}
+            opacity={Math.min(0.35, glowStrength * 0.25)}
             side={THREE.DoubleSide}
           />
         </mesh>
@@ -415,7 +452,7 @@ export default function Building({
         </mesh>
       )}
 
-      {/* ── Skyscraper spire — ~60% of very tall buildings get a dramatic spire ── */}
+      {/* ── Spire — stars > 500 get a dramatic spire ── */}
       {hasSpire && (
         <mesh position={[0, height + 12, 0]}>
           <cylinderGeometry args={[0.1, 1.0, 24, 6]} />
@@ -428,6 +465,56 @@ export default function Building({
           />
         </mesh>
       )}
+
+      {/* ── Monument Crown — top 1% DevScore ── */}
+      {hasMonumentCrown && (
+        <mesh ref={crownRef} position={[0, height + 8, 0]}>
+          <octahedronGeometry args={[3, 0]} />
+          <meshStandardMaterial
+            color="#ffd700"
+            emissive="#ffd700"
+            emissiveIntensity={2.0}
+            toneMapped={false}
+            metalness={0.9}
+            roughness={0.1}
+          />
+        </mesh>
+      )}
+
+      {/* ── Campus Satellite Buildings — repos > 120 ── */}
+      {campusSatellites.map((sat, i) => {
+        const satHeight = height * sat.scale;
+        const satWidth = width * sat.scale * 0.7;
+        const satDepth = depth * sat.scale * 0.7;
+        return (
+          <group key={`campus-${i}`} position={sat.offset}>
+            <mesh position={[0, satHeight / 2, 0]} castShadow>
+              <boxGeometry args={[satWidth, satHeight, satDepth]} />
+              <meshStandardMaterial
+                color={bodyColor}
+                emissive={accentColor}
+                emissiveIntensity={0.02}
+                roughness={0.85}
+                metalness={0.15}
+              />
+            </mesh>
+            {/* Satellite neon edge */}
+            <lineSegments position={[0, satHeight / 2, 0]}>
+              <edgesGeometry args={[new THREE.BoxGeometry(satWidth, satHeight, satDepth)]} />
+              <lineBasicMaterial color={accentColor} transparent opacity={0.08} />
+            </lineSegments>
+            {/* Satellite roof cap */}
+            <mesh position={[0, satHeight + 0.15, 0]}>
+              <boxGeometry args={[satWidth + 0.2, 0.3, satDepth + 0.2]} />
+              <meshStandardMaterial
+                color={roofColor}
+                emissive={accentColor}
+                emissiveIntensity={0.1}
+              />
+            </mesh>
+          </group>
+        );
+      })}
 
       {/* ── Windows ── */}
       {windowMeshes.map((win, i) => (
@@ -506,7 +593,7 @@ export default function Building({
               {building.contributions.toLocaleString()} contributions · ★{building.total_stars.toLocaleString()}
             </div>
             <div className="text-[10px] text-gray-500 mt-0.5">
-              HEIGHT {Math.round(height)}u · {building.public_repos} repos
+              HEIGHT {Math.round(height)}u · {building.public_repos} repos · {building.district}
             </div>
           </div>
         </Html>

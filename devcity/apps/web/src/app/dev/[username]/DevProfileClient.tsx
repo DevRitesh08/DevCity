@@ -69,7 +69,7 @@ export default function DevProfileClient({ building, enhanced, topRepos, visits,
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isClaimed, setIsClaimed] = useState(initialClaimed);
 
-  const accentColor = useMemo(() => getBuildingColor(building.login), [building.login]);
+  const accentColor = useMemo(() => getBuildingColor(building.login, building.district), [building.login, building.district]);
 
   const layout = useMemo(
     () => generateSingleBuildingLayout(building),
@@ -77,20 +77,7 @@ export default function DevProfileClient({ building, enhanced, topRepos, visits,
   );
 
   const { dimensions } = building;
-  const { health, gists, orgs, packages } = enhanced;
-
-  // Health aura color
-  const healthColor =
-    health.score >= 0.8 ? "#4dff88" :
-    health.score >= 0.5 ? "#ffa64d" :
-    health.score > 0 ? "#ff4d4d" :
-    "#5c5c6c";
-
-  const healthLabel =
-    health.score >= 0.8 ? "HEALTHY" :
-    health.score >= 0.5 ? "UNSTABLE" :
-    health.score > 0 ? "FAILING" :
-    "NO CI";
+  const { gists, orgs, packages } = enhanced;
 
   return (
     <div className="flex h-screen flex-col">
@@ -112,17 +99,16 @@ export default function DevProfileClient({ building, enhanced, topRepos, visits,
               <button
                 key={t}
                 onClick={() => setTheme(t)}
-                className={`h-6 w-6 border-2 transition-all ${
-                  theme === t
+                className={`h-6 w-6 border-2 transition-all ${theme === t
                     ? "border-accent scale-110"
                     : "border-border hover:border-border-light"
-                }`}
+                  }`}
                 style={{
                   backgroundColor:
                     t === "midnight" ? "#0a0e1a" :
-                    t === "sunset" ? "#1a0a1e" :
-                    t === "dawn" ? "#0d1b2a" :
-                    "#0a000a",
+                      t === "sunset" ? "#1a0a1e" :
+                        t === "dawn" ? "#0d1b2a" :
+                          "#0a000a",
                 }}
                 title={t.charAt(0).toUpperCase() + t.slice(1)}
               />
@@ -137,8 +123,8 @@ export default function DevProfileClient({ building, enhanced, topRepos, visits,
         <div className="flex-1">
           <CityCanvas
             buildings={layout.buildings}
+            districts={layout.districts}
             theme={theme}
-            healthScores={{ [building.login]: health.score }}
           />
 
           {/* Mobile toggle */}
@@ -183,19 +169,13 @@ export default function DevProfileClient({ building, enhanced, topRepos, visits,
           {/* Live Presence */}
           <PresenceIndicator login={building.login} />
 
-          {/* District + Health Badges */}
+          {/* District + Rank Badges */}
           <div className="mb-4 flex flex-wrap gap-2">
             <span
               className="inline-block border-2 px-2 py-1 text-xs font-bold uppercase"
               style={{ borderColor: accentColor, color: accentColor }}
             >
               {building.district} district
-            </span>
-            <span
-              className="inline-block border-2 px-2 py-1 text-xs font-bold uppercase"
-              style={{ borderColor: healthColor, color: healthColor }}
-            >
-              {healthLabel}
             </span>
             {rank && (
               <span className="inline-block border-2 border-accent px-2 py-1 text-xs font-bold text-accent">
@@ -268,38 +248,7 @@ export default function DevProfileClient({ building, enhanced, topRepos, visits,
             </>
           )}
 
-          {/* CI Health Details */}
-          {health.statuses.length > 0 && health.statuses.some((s) => s.status !== "unknown") && (
-            <>
-              <hr className="my-4 border-border" />
-              <div className="space-y-2">
-                <h3 className="text-xs font-bold uppercase text-muted">CI Health</h3>
-                {health.statuses
-                  .filter((s) => s.status !== "unknown")
-                  .map((s) => (
-                    <div
-                      key={s.repo}
-                      className="flex items-center justify-between border-pixel bg-bg-card px-2 py-1 text-xs"
-                    >
-                      <span className="truncate text-cream">{s.repo}</span>
-                      <span
-                        className="font-bold uppercase"
-                        style={{
-                          color:
-                            s.status === "success" ? "#4dff88" :
-                            s.status === "failure" ? "#ff4d4d" :
-                            "#ffa64d",
-                        }}
-                      >
-                        {s.status === "success" ? "PASS" :
-                         s.status === "failure" ? "FAIL" :
-                         "PEND"}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            </>
-          )}
+
 
           {/* Organizations */}
           {orgs.length > 0 && (

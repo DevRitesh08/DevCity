@@ -20,22 +20,18 @@ const MIN_HEIGHT = 30;
 /** Maximum building height — top contributors get massive skyscrapers */
 const MAX_HEIGHT = 800;
 
-/** Minimum building width — narrower for skyscraper proportions */
-const MIN_WIDTH = 5;
-/** Maximum building width */
-const MAX_WIDTH = 18;
-/** Width per public repo */
-const WIDTH_PER_REPO = 0.15;
-
-/** Depth is proportional to width */
-const DEPTH_RATIO = 0.8;
-const MIN_DEPTH = 4;
-
 /** Floor height in city units */
 const FLOOR_HEIGHT = 5;
 
 /** Base windows per floor, increases with width */
 const BASE_WINDOWS_PER_FLOOR = 3;
+
+/** Scaling factor for hybrid log height formula */
+const HEIGHT_SCALE = 4.0;
+
+// ─── Width Constants ───────────────────────────────────────────
+const MIN_WIDTH = 6;
+const MAX_WIDTH = 22;
 
 // ─── Main Function ─────────────────────────────────────────────
 
@@ -44,14 +40,15 @@ const BASE_WINDOWS_PER_FLOOR = 3;
  *
  * The algorithm:
  * - Height: logarithmic scaling of contributions (rewards consistency, not spam)
- * - Width: linear scaling of public repos (wider = more projects)
- * - Depth: proportional to width (keeps buildings looking good)
- * - Lit windows: based on stars and recent activity
+ * - Width: hybrid formula from repos + height (wider for more repos, avoids needle towers)
+ * - Depth: proportional to width with slight random variation
+ * - Window density: star-based illumination (popular = brighter)
+ * - Glow strength: follower-based halo intensity
  */
-/** Scaling factor for hybrid log height formula */
-const HEIGHT_SCALE = 4.0;
-
-export function computeBuildingDimensions(input: BuildingInput): BuildingDimensions {
+export function computeBuildingDimensions(
+  input: BuildingInput,
+  login: string = "default"
+): BuildingDimensions {
   // ── Height (from contributions) ──
   // Hybrid log scaling: log10(contributions+1)^3 * SCALE
   // Creates realistic skyscraper variation:
@@ -62,12 +59,16 @@ export function computeBuildingDimensions(input: BuildingInput): BuildingDimensi
       : 0;
   const height = clamp(MIN_HEIGHT + rawHeight, MIN_HEIGHT, MAX_HEIGHT);
 
-  // ── Width (from public repos) ──
-  const rawWidth = input.publicRepos * WIDTH_PER_REPO;
-  const width = clamp(MIN_WIDTH + rawWidth, MIN_WIDTH, MAX_WIDTH);
+  // ── Width (from repos + height factor) ──
+  // Hybrid: log2(repos+1)*2 gives breadth, height*0.05 prevents needle towers
+  const baseWidth = Math.log2(input.publicRepos + 1) * 2;
+  const heightFactor = height * 0.05;
+  const width = clamp(baseWidth + heightFactor, MIN_WIDTH, MAX_WIDTH);
 
-  // ── Depth ──
-  const depth = clamp(width * DEPTH_RATIO, MIN_DEPTH, MAX_WIDTH * DEPTH_RATIO);
+  // ── Depth (proportional to width with seeded variation) ──
+  const rng = seededRandom(login + "_depth");
+  const depthRatio = 0.85 + rng() * 0.3; // 0.85 to 1.15
+  const depth = clamp(width * depthRatio, MIN_WIDTH * 0.85, MAX_WIDTH * 1.15);
 
   // ── Floor count ──
   const floors = Math.max(2, Math.floor(height / FLOOR_HEIGHT));
@@ -79,14 +80,23 @@ export function computeBuildingDimensions(input: BuildingInput): BuildingDimensi
   );
   const sideWindowsPerFloor = Math.max(2, Math.floor(depth / 3));
 
-  // ── Lit percentage (from stars + followers) ──
-  // More stars = more lit windows. Clamped to 0.1–0.95.
-  const starFactor = Math.min(1, input.totalStars / 500);
-  const followerFactor = Math.min(1, input.followers / 200);
-  const litPercentage = clamp(
-    0.1 + starFactor * 0.5 + followerFactor * 0.2,
+  // ── Window density (from stars) ──
+  // More stars = brighter building. log2 scaling for smooth distribution.
+  const windowDensity = clamp(
+    Math.log2(input.totalStars + 1) * 0.1,
     0.1,
-    0.95
+    0.8
+  );
+
+  // ── Lit percentage (same as windowDensity for rendering) ──
+  const litPercentage = windowDensity;
+
+  // ── Glow strength (from followers) ──
+  // 10 followers → very subtle, 100 → noticeable, 1000 → visible, 10000+ → strong
+  const glowStrength = clamp(
+    Math.log10(input.followers + 1) * 0.3,
+    0,
+    1.5
   );
 
   return {
@@ -97,6 +107,8 @@ export function computeBuildingDimensions(input: BuildingInput): BuildingDimensi
     windowsPerFloor,
     sideWindowsPerFloor,
     litPercentage: Math.round(litPercentage * 100) / 100,
+    glowStrength: Math.round(glowStrength * 100) / 100,
+    windowDensity: Math.round(windowDensity * 100) / 100,
   };
 }
 
@@ -123,23 +135,35 @@ export function seededRandom(seed: string): () => number {
   };
 }
 
-// ─── Color Generation ──────────────────────────────────────────
-// Generates a building's accent color from their username.
+// ─── District Color Map ────────────────────────────────────────
+// Maps district names to their accent colors.
+// Used by Building.tsx for district-aware coloring.
 
-const BUILDING_PALETTES = [
-  "#c8e64a", // Lime (default)
-  "#64b5f6", // Blue
-  "#ff6b6b", // Red
-  "#ffd93d", // Yellow
-  "#6bcb77", // Green
-  "#e040fb", // Purple
-  "#ff8a65", // Orange
-  "#4fc3f7", // Cyan
-  "#f06292", // Pink
-  "#aed581", // Light Green
-];
+export const DISTRICT_COLORS: Record<string, string> = {
+  frontend: "#64b5f6", // Blue
+  backend: "#c8e64a", // Lime
+  fullstack: "#ffd93d", // Yellow
+  devops: "#ff8a65", // Orange
+  mobile: "#e040fb", // Purple
+  data: "#4fc3f7", // Cyan
+  "ai-ml": "#f06292", // Pink
+  security: "#ff6b6b", // Red
+  gamedev: "#aed581", // Light Green
+  "open-source": "#6bcb77", // Green
+  "vibe-coder": "#9f7aea", // Violet
+  creator: "#f0c040", // Gold
+};
 
-export function getBuildingColor(login: string): string {
+/**
+ * Get the accent color for a building based on its district.
+ * Falls back to fullstack yellow if district is unknown.
+ */
+export function getBuildingColor(login: string, district?: string): string {
+  if (district && DISTRICT_COLORS[district]) {
+    return DISTRICT_COLORS[district];
+  }
+  // Fallback: deterministic from login
   const rng = seededRandom(login);
-  return BUILDING_PALETTES[Math.floor(rng() * BUILDING_PALETTES.length)];
+  const colors = Object.values(DISTRICT_COLORS);
+  return colors[Math.floor(rng() * colors.length)];
 }

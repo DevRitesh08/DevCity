@@ -1,37 +1,38 @@
 // ─── CityCanvas ────────────────────────────────────────────────
 // The root Three.js canvas component.
 // Cinematic cyberpunk city renderer with starfield, neon grid ground,
-// floating particles, volumetric bloom, and dramatic lighting.
+// floating particles, volumetric bloom, district ground system,
+// procedural roads, building plots, and district labels.
 
 "use client";
 
 import { Suspense, useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Stats, PerformanceMonitor, Stars, Grid } from "@react-three/drei";
+import { OrbitControls, Stats, PerformanceMonitor, Stars, Grid, Html } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import CityScene from "./CityScene";
-import type { CityBuilding } from "@devcity/types";
+import type { CityBuilding, District } from "@devcity/types";
 
 interface CityCanvasProps {
   /** Array of buildings to render in the city */
   buildings: CityBuilding[];
+  /** Districts in the city */
+  districts?: District[];
   /** City theme name */
   theme?: string;
   /** Show performance stats overlay */
   showStats?: boolean;
   /** Callback when a building is clicked */
   onBuildingClick?: (login: string) => void;
-  /** Map of login → CI health score (0–1) */
-  healthScores?: Record<string, number>;
 }
 
 export default function CityCanvas({
   buildings,
+  districts = [],
   theme = "midnight",
   showStats = false,
   onBuildingClick,
-  healthScores,
 }: CityCanvasProps) {
   const controlsRef = useRef(null);
 
@@ -125,15 +126,14 @@ export default function CityCanvas({
               buildings={buildings}
               theme={theme}
               onBuildingClick={onBuildingClick}
-              healthScores={healthScores}
             />
           </Suspense>
 
-          {/* ─── Neon Grid Ground ─── */}
-          <NeonGround
-            groundColor={themeColors.ground}
-            gridColor={themeColors.gridPrimary}
-            gridAccent={themeColors.gridAccent}
+          {/* ─── Ground System ─── */}
+          <CityGroundSystem
+            buildings={buildings}
+            districts={districts}
+            themeColors={themeColors}
           />
 
           {/* ─── Floating Particles ─── */}
@@ -177,24 +177,22 @@ export default function CityCanvas({
   );
 }
 
-// ─── Neon Grid Ground ──────────────────────────────────────────
-// A dark base plane + glowing cyberpunk grid lines.
+// ─── City Ground System ────────────────────────────────────────
+// Structured ground with district tiles, roads, plots, borders, and labels.
 
-function NeonGround({
-  groundColor,
-  gridColor,
-  gridAccent,
-}: {
-  groundColor: string;
-  gridColor: string;
-  gridAccent: string;
-}) {
+interface GroundSystemProps {
+  buildings: CityBuilding[];
+  districts: District[];
+  themeColors: ReturnType<typeof getThemeColors>;
+}
+
+function CityGroundSystem({ buildings, districts, themeColors }: GroundSystemProps) {
   return (
     <group>
-      {/* Solid dark ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.2, 0]} receiveShadow>
+      {/* Solid dark ground base */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
         <planeGeometry args={[8000, 8000]} />
-        <meshStandardMaterial color={groundColor} roughness={0.95} metalness={0.05} />
+        <meshStandardMaterial color={themeColors.ground} roughness={0.95} metalness={0.05} />
       </mesh>
 
       {/* Neon grid overlay */}
@@ -202,15 +200,337 @@ function NeonGround({
         position={[0, 0.01, 0]}
         cellSize={20}
         cellThickness={0.6}
-        cellColor={gridColor}
+        cellColor={themeColors.gridPrimary}
         sectionSize={100}
         sectionThickness={1.0}
-        sectionColor={gridAccent}
+        sectionColor={themeColors.gridAccent}
         fadeDistance={2000}
         fadeStrength={1.5}
         infiniteGrid
         side={THREE.DoubleSide}
       />
+
+      {/* District ground tiles & borders */}
+      {districts.map((district) => (
+        <DistrictGround key={district.name} district={district} />
+      ))}
+
+      {/* Building plot tiles */}
+      {buildings.map((b) => (
+        <BuildingPlot
+          key={b.login}
+          position={[b.position[0], 0, b.position[1]]}
+          width={b.dimensions.width + 4}
+          depth={b.dimensions.depth + 4}
+          district={b.district}
+        />
+      ))}
+
+      {/* Procedural roads between districts */}
+      <ProceduralRoads districts={districts} accentColor={themeColors.accent} />
+
+      {/* Floating district labels */}
+      {districts.map((district) => (
+        <DistrictLabel key={`label-${district.name}`} district={district} />
+      ))}
+    </group>
+  );
+}
+
+// ─── District Ground Tile ──────────────────────────────────────
+// Tinted ground per district with elevation variation and glowing border.
+
+function DistrictGround({ district }: { district: District }) {
+  const [cx, cz] = district.center;
+  const radius = district.radius;
+  const color = new THREE.Color(district.color);
+
+  // Subtle terrain elevation per district (±3 units, seeded)
+  const elevation = useMemo(() => {
+    let hash = 0;
+    for (let i = 0; i < district.name.length; i++) {
+      hash = ((hash << 5) - hash + district.name.charCodeAt(i)) | 0;
+    }
+    return ((hash & 0xff) / 255) * 6 - 3; // -3 to +3
+  }, [district.name]);
+
+  // Border points for a hexagonal-ish shape
+  const borderPoints = useMemo(() => {
+    const points: THREE.Vector3[] = [];
+    const segments = 32;
+    for (let i = 0; i <= segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      points.push(
+        new THREE.Vector3(
+          cx + Math.cos(angle) * radius,
+          elevation + 0.3,
+          cz + Math.sin(angle) * radius
+        )
+      );
+    }
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, [cx, cz, radius, elevation]);
+
+  return (
+    <group>
+      {/* Tinted ground disc */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[cx, elevation + 0.05, cz]}
+        receiveShadow
+      >
+        <circleGeometry args={[radius, 32]} />
+        <meshStandardMaterial
+          color={color.clone().multiplyScalar(0.15)}
+          emissive={color}
+          emissiveIntensity={0.02}
+          roughness={0.92}
+          metalness={0.08}
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+
+      {/* Glowing border ring — using lineSegments instead of line to avoid SVG conflict */}
+      <lineSegments geometry={borderPoints}>
+        <lineBasicMaterial
+          color={district.color}
+          transparent
+          opacity={0.4}
+          linewidth={2}
+        />
+      </lineSegments>
+
+      {/* Inner glow ring at ground level */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[cx, elevation + 0.15, cz]}
+      >
+        <ringGeometry args={[radius - 1, radius + 0.5, 32]} />
+        <meshStandardMaterial
+          color={district.color}
+          emissive={district.color}
+          emissiveIntensity={0.6}
+          toneMapped={false}
+          transparent
+          opacity={0.2}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// ─── Building Plot ─────────────────────────────────────────────
+// Raised platform tile under each building.
+
+function BuildingPlot({
+  position,
+  width,
+  depth,
+  district,
+}: {
+  position: [number, number, number];
+  width: number;
+  depth: number;
+  district: string;
+}) {
+  const plotColor = useMemo(() => {
+    const DISTRICT_COLORS: Record<string, string> = {
+      frontend: "#64b5f6", backend: "#c8e64a", fullstack: "#ffd93d",
+      devops: "#ff8a65", mobile: "#e040fb", data: "#4fc3f7",
+      "ai-ml": "#f06292", security: "#ff6b6b", gamedev: "#aed581",
+      "open-source": "#6bcb77",
+    };
+    return DISTRICT_COLORS[district] || "#ffd93d";
+  }, [district]);
+
+  return (
+    <group position={position}>
+      {/* Plot base */}
+      <mesh position={[0, 0.1, 0]}>
+        <boxGeometry args={[width, 0.2, depth]} />
+        <meshStandardMaterial
+          color="#0c0c18"
+          emissive={plotColor}
+          emissiveIntensity={0.03}
+          roughness={0.9}
+          metalness={0.1}
+        />
+      </mesh>
+      {/* Plot edge glow */}
+      <lineSegments position={[0, 0.2, 0]}>
+        <edgesGeometry args={[new THREE.BoxGeometry(width, 0.2, depth)]} />
+        <lineBasicMaterial color={plotColor} transparent opacity={0.15} />
+      </lineSegments>
+    </group>
+  );
+}
+
+// ─── Procedural Roads ──────────────────────────────────────────
+// Dark asphalt roads with neon lane lines connecting districts.
+
+function ProceduralRoads({
+  districts,
+  accentColor,
+}: {
+  districts: District[];
+  accentColor: string;
+}) {
+  const roads = useMemo(() => {
+    if (districts.length < 2) return [];
+
+    const roadSegments: {
+      start: [number, number];
+      end: [number, number];
+      color: string;
+    }[] = [];
+
+    // Connect each district to the city center (0,0)
+    for (const district of districts) {
+      roadSegments.push({
+        start: [0, 0],
+        end: district.center,
+        color: district.color,
+      });
+    }
+
+    // Connect adjacent districts (by angle proximity)
+    const sorted = [...districts].sort((a, b) => {
+      const angleA = Math.atan2(a.center[1], a.center[0]);
+      const angleB = Math.atan2(b.center[1], b.center[0]);
+      return angleA - angleB;
+    });
+
+    for (let i = 0; i < sorted.length; i++) {
+      const next = sorted[(i + 1) % sorted.length];
+      roadSegments.push({
+        start: sorted[i].center,
+        end: next.center,
+        color: accentColor,
+      });
+    }
+
+    return roadSegments;
+  }, [districts, accentColor]);
+
+  return (
+    <group>
+      {roads.map((road, i) => {
+        const dx = road.end[0] - road.start[0];
+        const dz = road.end[1] - road.start[1];
+        const length = Math.sqrt(dx * dx + dz * dz);
+        const angle = Math.atan2(dz, dx);
+        const midX = (road.start[0] + road.end[0]) / 2;
+        const midZ = (road.start[1] + road.end[1]) / 2;
+        const roadWidth = 6;
+
+        return (
+          <group key={`road-${i}`}>
+            {/* Asphalt surface */}
+            <mesh
+              position={[midX, 0.08, midZ]}
+              rotation={[-Math.PI / 2, 0, -angle]}
+            >
+              <planeGeometry args={[length, roadWidth]} />
+              <meshStandardMaterial
+                color="#0a0a12"
+                roughness={0.85}
+                metalness={0.15}
+              />
+            </mesh>
+
+            {/* Center neon lane line */}
+            <mesh
+              position={[midX, 0.12, midZ]}
+              rotation={[-Math.PI / 2, 0, -angle]}
+            >
+              <planeGeometry args={[length, 0.3]} />
+              <meshStandardMaterial
+                color={road.color}
+                emissive={road.color}
+                emissiveIntensity={0.6}
+                toneMapped={false}
+                transparent
+                opacity={0.5}
+              />
+            </mesh>
+
+            {/* Edge lane lines */}
+            {[-roadWidth / 2 + 0.3, roadWidth / 2 - 0.3].map((offset, j) => (
+              <mesh
+                key={`lane-${i}-${j}`}
+                position={[
+                  midX + Math.sin(angle) * offset,
+                  0.11,
+                  midZ - Math.cos(angle) * offset,
+                ]}
+                rotation={[-Math.PI / 2, 0, -angle]}
+              >
+                <planeGeometry args={[length, 0.15]} />
+                <meshStandardMaterial
+                  color={road.color}
+                  emissive={road.color}
+                  emissiveIntensity={0.4}
+                  toneMapped={false}
+                  transparent
+                  opacity={0.3}
+                />
+              </mesh>
+            ))}
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+// ─── District Labels ───────────────────────────────────────────
+// Floating holographic billboard labels above each district.
+
+function DistrictLabel({ district }: { district: District }) {
+  const [cx, cz] = district.center;
+
+  // Subtle float animation via ref
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (groupRef.current) {
+      groupRef.current.position.y = 120 + Math.sin(clock.elapsedTime * 0.5 + cx * 0.01) * 3;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[cx, 120, cz]}>
+      <Html
+        center
+        distanceFactor={400}
+        style={{ pointerEvents: "none" }}
+      >
+        <div
+          style={{
+            padding: "8px 20px",
+            background: "rgba(5, 8, 16, 0.75)",
+            border: `1px solid ${district.color}`,
+            boxShadow: `0 0 20px ${district.color}33, 0 0 40px ${district.color}11`,
+            backdropFilter: "blur(6px)",
+            whiteSpace: "nowrap",
+            fontFamily: "'Silkscreen', monospace",
+            letterSpacing: "0.15em",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "13px",
+              fontWeight: "bold",
+              color: district.color,
+              textShadow: `0 0 10px ${district.color}66`,
+              textTransform: "uppercase",
+            }}
+          >
+            {district.displayName}
+          </div>
+        </div>
+      </Html>
     </group>
   );
 }

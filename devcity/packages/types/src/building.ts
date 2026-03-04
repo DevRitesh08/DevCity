@@ -19,6 +19,10 @@ export interface BuildingDimensions {
   sideWindowsPerFloor: number;
   /** 0–1, how many windows are lit (from stars/activity) */
   litPercentage: number;
+  /** 0–1.5, follower-based building glow intensity */
+  glowStrength: number;
+  /** 0.1–0.8, star-based window illumination density */
+  windowDensity: number;
 }
 
 /** The complete building data for rendering */
