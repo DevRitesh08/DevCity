@@ -1,0 +1,33 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Developer Model ──────────────────────────────────────────
+// Each searched GitHub developer becomes a persistent record.
+// Survives server restarts via SQLite.
+
+model Developer {
+  login        String  @id
+  name         String?
+  avatar_url   String
+  contributions Int    @default(0)
+  public_repos  Int    @default(0)
+  total_stars   Int    @default(0)
+  followers     Int    @default(0)
+  district      String @default("fullstack")
+  rank          Int?
+  dev_score     Float  @default(0)
+  visit_count   Int    @default(0)
+  kudos_count   Int    @default(0)
+  claimed       Boolean @default(false)
+  owner_id      String?
+  last_seen     DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
