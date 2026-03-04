@@ -11,9 +11,9 @@ export const metadata: Metadata = {
   description: "Top developers in DevCity ranked by contributions, stars, and more",
 };
 
-export default async function LeaderboardPage() {
-  const entries = await getLeaderboard("dev_score", 50);
-  const stats = await getCityStats();
+export default function LeaderboardPage() {
+  const entries = getLeaderboard("dev_score", 50);
+  const stats = getCityStats();
 
   const enriched = entries.map((e) => ({
     ...e,

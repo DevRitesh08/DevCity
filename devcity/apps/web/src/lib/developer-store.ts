@@ -1,13 +1,9 @@
 // ─── Developer Persistence ─────────────────────────────────────
-// Persistent storage via Prisma + SQLite.
-// Developers survive server restarts. Every search → upsert.
+// Saves and retrieves developer data from the database.
+// Uses in-memory store as fallback when Supabase is not configured.
+// Upgrade path: swap the store implementation to Supabase calls.
 
-import { prisma } from "./prisma";
 import type { CityBuilding } from "@devcity/types";
-
-// Infer Developer type from Prisma client
-type PrismaDevRow = Awaited<ReturnType<typeof prisma.developer.findUniqueOrThrow>>;
-type PrismaDevRowSelect = { login: string };
 
 // ─── Types ─────────────────────────────────────────────────────
 
@@ -53,125 +49,97 @@ export interface CityStats {
   totalRepos: number;
 }
 
-// ─── Helpers ───────────────────────────────────────────────────
+// ─── In-Memory Store (Supabase-ready upgrade path) ─────────────
+// When Supabase is configured, replace these with real DB calls.
+// The interface stays the same.
 
-/** Convert Prisma Developer row to StoredDeveloper */
-function toStored(row: PrismaDevRow): StoredDeveloper {
-  return {
-    login: row.login,
-    name: row.name,
-    avatar_url: row.avatar_url,
-    contributions: row.contributions,
-    public_repos: row.public_repos,
-    total_stars: row.total_stars,
-    followers: row.followers,
-    district: row.district,
-    rank: row.rank,
-    dev_score: row.dev_score,
-    visit_count: row.visit_count,
-    kudos_count: row.kudos_count,
-    claimed: row.claimed,
-    owner_id: row.owner_id,
-    last_seen: row.last_seen.toISOString(),
-    updated_at: row.updated_at.toISOString(),
-  };
-}
-
-// ─── CRUD Operations ───────────────────────────────────────────
+const devStore = new Map<string, StoredDeveloper>();
 
 /**
  * Upsert a developer record from fetched GitHub data.
  * Call this whenever a profile is viewed — keeps data fresh.
- * Uses database UPSERT to avoid duplicates.
  */
 export async function upsertDeveloper(building: CityBuilding): Promise<StoredDeveloper> {
-  const devScore = computeDevScore(building);
+  const existing = devStore.get(building.login);
+  const now = new Date().toISOString();
 
-  const row = await prisma.developer.upsert({
-    where: { login: building.login },
-    update: {
-      name: building.name,
-      avatar_url: building.avatar_url,
-      contributions: building.contributions,
-      public_repos: building.public_repos,
-      total_stars: building.total_stars,
-      followers: building.followers,
-      district: building.district,
-      dev_score: devScore,
-      visit_count: { increment: 1 },
-      // claimed / owner_id are NOT updated — preserved across upserts
-    },
-    create: {
-      login: building.login,
-      name: building.name,
-      avatar_url: building.avatar_url,
-      contributions: building.contributions,
-      public_repos: building.public_repos,
-      total_stars: building.total_stars,
-      followers: building.followers,
-      district: building.district,
-      dev_score: devScore,
-      visit_count: 1,
-      kudos_count: 0,
-      claimed: false,
-      owner_id: null,
-    },
-  });
+  const dev: StoredDeveloper = {
+    login: building.login,
+    name: building.name,
+    avatar_url: building.avatar_url,
+    contributions: building.contributions,
+    public_repos: building.public_repos,
+    total_stars: building.total_stars,
+    followers: building.followers,
+    district: building.district,
+    rank: existing?.rank ?? null,
+    dev_score: computeDevScore(building),
+    visit_count: (existing?.visit_count ?? 0) + 1,
+    kudos_count: existing?.kudos_count ?? 0,
+    // Preserve claimed/owner_id across upserts — never overwrite
+    claimed: existing?.claimed ?? false,
+    owner_id: existing?.owner_id ?? null,
+    last_seen: existing?.last_seen ?? now,
+    updated_at: now,
+  };
 
-  // Recompute ranks
-  await recomputeRanks();
+  devStore.set(building.login, dev);
 
-  return toStored(row);
+  // Recompute ranks whenever store changes
+  recomputeRanks();
+
+  return dev;
 }
 
 /**
  * Get a stored developer by login. Returns null if never visited.
  */
 export async function getDeveloper(login: string): Promise<StoredDeveloper | null> {
-  const row = await prisma.developer.findUnique({ where: { login } });
-  return row ? toStored(row) : null;
+  return devStore.get(login) ?? null;
 }
 
 /**
  * Increment visit count for a developer.
  */
 export async function incrementVisits(login: string): Promise<void> {
-  await prisma.developer.update({
-    where: { login },
-    data: { visit_count: { increment: 1 } },
-  }).catch(() => {
-    // Ignore if developer doesn't exist
-  });
+  const dev = devStore.get(login);
+  if (dev) {
+    dev.visit_count += 1;
+    dev.updated_at = new Date().toISOString();
+  }
 }
 
 /**
  * Give kudos to a developer.
  */
 export async function giveKudos(login: string): Promise<number> {
-  try {
-    const row = await prisma.developer.update({
-      where: { login },
-      data: { kudos_count: { increment: 1 } },
-    });
-    return row.kudos_count;
-  } catch {
-    return 0;
-  }
+  const dev = devStore.get(login);
+  if (!dev) return 0;
+  dev.kudos_count += 1;
+  dev.updated_at = new Date().toISOString();
+  return dev.kudos_count;
 }
 
 /**
  * Get the top N developers for the leaderboard.
  */
-export async function getLeaderboard(
+export function getLeaderboard(
   sortBy: "contributions" | "total_stars" | "dev_score" | "followers" = "dev_score",
   limit: number = 50,
-): Promise<LeaderboardEntry[]> {
-  const rows: PrismaDevRow[] = await prisma.developer.findMany({
-    orderBy: { [sortBy]: "desc" },
-    take: limit,
+): LeaderboardEntry[] {
+  const devs = Array.from(devStore.values());
+
+  devs.sort((a, b) => {
+    switch (sortBy) {
+      case "contributions": return b.contributions - a.contributions;
+      case "total_stars": return b.total_stars - a.total_stars;
+      case "followers": return b.followers - a.followers;
+      case "dev_score":
+      default: return b.dev_score - a.dev_score;
+    }
   });
 
-  return rows.map((d: PrismaDevRow, i: number) => ({
+  return devs.slice(0, limit).map((d, i) => ({
     login: d.login,
     name: d.name,
     avatar_url: d.avatar_url,
@@ -188,23 +156,13 @@ export async function getLeaderboard(
 /**
  * Get total developer count and aggregate stats.
  */
-export async function getCityStats(): Promise<CityStats> {
-  const [count, agg] = await Promise.all([
-    prisma.developer.count(),
-    prisma.developer.aggregate({
-      _sum: {
-        contributions: true,
-        total_stars: true,
-        public_repos: true,
-      },
-    }),
-  ]);
-
+export function getCityStats(): CityStats {
+  const devs = Array.from(devStore.values());
   return {
-    totalDevelopers: count,
-    totalContributions: agg._sum.contributions ?? 0,
-    totalStars: agg._sum.total_stars ?? 0,
-    totalRepos: agg._sum.public_repos ?? 0,
+    totalDevelopers: devs.length,
+    totalContributions: devs.reduce((s, d) => s + d.contributions, 0),
+    totalStars: devs.reduce((s, d) => s + d.total_stars, 0),
+    totalRepos: devs.reduce((s, d) => s + d.public_repos, 0),
   };
 }
 
@@ -216,28 +174,23 @@ export async function claimDeveloper(
   login: string,
   ownerId: string,
 ): Promise<StoredDeveloper | null> {
-  try {
-    const row = await prisma.developer.update({
-      where: { login },
-      data: {
-        claimed: true,
-        owner_id: ownerId,
-        last_seen: new Date(),
-      },
-    });
-    return toStored(row);
-  } catch {
-    return null;
-  }
+  const dev = devStore.get(login);
+  if (!dev) return null;
+
+  dev.claimed = true;
+  dev.owner_id = ownerId;
+  dev.last_seen = new Date().toISOString();
+  dev.updated_at = new Date().toISOString();
+
+  return dev;
 }
 
 /**
  * Get all stored developers. Used by the city page to render every
  * building that has been visited at least once.
  */
-export async function getAllStoredDevelopers(): Promise<StoredDeveloper[]> {
-  const rows = await prisma.developer.findMany();
-  return rows.map(toStored);
+export function getAllStoredDevelopers(): StoredDeveloper[] {
+  return Array.from(devStore.values());
 }
 
 // ─── Internal Helpers ──────────────────────────────────────────
@@ -259,19 +212,9 @@ function computeDevScore(b: CityBuilding): number {
 /**
  * Recompute all ranks based on dev_score (desc).
  */
-async function recomputeRanks(): Promise<void> {
-  const devs = await prisma.developer.findMany({
-    orderBy: { dev_score: "desc" },
-    select: { login: true },
+function recomputeRanks(): void {
+  const sorted = Array.from(devStore.values()).sort((a, b) => b.dev_score - a.dev_score);
+  sorted.forEach((dev, i) => {
+    dev.rank = i + 1;
   });
-
-  // Batch update ranks
-  const updates = devs.map((dev: PrismaDevRowSelect, i: number) =>
-    prisma.developer.update({
-      where: { login: dev.login },
-      data: { rank: i + 1 },
-    })
-  );
-
-  await prisma.$transaction(updates);
 }

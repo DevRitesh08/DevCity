@@ -129,16 +129,17 @@ export default function CityOverviewClient({ buildings }: CityOverviewClientProp
               <button
                 key={t}
                 onClick={() => setTheme(t)}
-                className={`h-6 w-6 border-2 transition-all ${theme === t
+                className={`h-6 w-6 border-2 transition-all ${
+                  theme === t
                     ? "border-accent scale-110"
                     : "border-border hover:border-border-light"
-                  }`}
+                }`}
                 style={{
                   backgroundColor:
                     t === "midnight" ? "#0a0e1a" :
-                      t === "sunset" ? "#1a0a1e" :
-                        t === "dawn" ? "#0d1b2a" :
-                          "#0a000a",
+                    t === "sunset" ? "#1a0a1e" :
+                    t === "dawn" ? "#0d1b2a" :
+                    "#0a000a",
                 }}
                 title={t.charAt(0).toUpperCase() + t.slice(1)}
               />
@@ -153,7 +154,6 @@ export default function CityOverviewClient({ buildings }: CityOverviewClientProp
         <div className="flex-1 relative">
           <CityCanvas
             buildings={layout.buildings}
-            districts={layout.districts}
             theme={theme}
             onBuildingClick={handleBuildingClick}
           />

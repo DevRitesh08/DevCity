@@ -87,7 +87,7 @@ async function fetchBuilding(username: string): Promise<CityBuilding | null> {
 
 export default async function CityPage() {
   // 1. Get all developers already stored from profile visits
-  const storedDevs = await getAllStoredDevelopers();
+  const storedDevs = getAllStoredDevelopers();
   const storedLogins = new Set(storedDevs.map((d) => d.login));
 
   // 2. Seed featured devs that haven't been visited yet

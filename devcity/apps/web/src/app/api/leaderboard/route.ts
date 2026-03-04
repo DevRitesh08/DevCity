@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     | "followers";
   const limit = Math.min(Number(searchParams.get("limit") || "50"), 100);
 
-  const entries = await getLeaderboard(sortBy, limit);
+  const entries = getLeaderboard(sortBy, limit);
 
   // Enrich with achievement counts
   const enriched = entries.map((e) => ({
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     achievementCount: getAchievements(e.login).length,
   }));
 
-  const stats = await getCityStats();
+  const stats = getCityStats();
 
   return NextResponse.json({
     sort: sortBy,

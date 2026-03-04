@@ -118,7 +118,12 @@ export async function fetchAuthenticatedUser(accessToken: string): Promise<Sessi
  * In production, upgrade to encrypted JWT or Supabase sessions.
  */
 export async function createSession(user: SessionUser): Promise<void> {
-  const encoded = encodeSessionCookie(user);
+  const session: Session = {
+    user,
+    expiresAt: Date.now() + SESSION_TTL,
+  };
+
+  const encoded = Buffer.from(JSON.stringify(session)).toString("base64");
   const cookieStore = await cookies();
 
   cookieStore.set(SESSION_COOKIE, encoded, {
@@ -129,23 +134,6 @@ export async function createSession(user: SessionUser): Promise<void> {
     maxAge: SESSION_TTL / 1000,
   });
 }
-
-/**
- * Encode a session user into a base64 cookie value.
- * Used by the callback route to set the cookie directly on the response
- * (since cookies() API does not attach to a manually returned NextResponse).
- */
-export function encodeSessionCookie(user: SessionUser): string {
-  const session: Session = {
-    user,
-    expiresAt: Date.now() + SESSION_TTL,
-  };
-  return Buffer.from(JSON.stringify(session)).toString("base64");
-}
-
-/** Cookie name and TTL — exported for the callback route */
-export const SESSION_COOKIE_NAME = SESSION_COOKIE;
-export const SESSION_TTL_SECONDS = SESSION_TTL / 1000;
 
 /**
  * Get the current session from cookies. Returns null if not authenticated.

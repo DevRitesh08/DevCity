@@ -3,8 +3,8 @@ import UserNav from "@/components/UserNav";
 import Link from "next/link";
 import { getCityStats } from "@/lib/developer-store";
 
-export default async function Home() {
-  const stats = await getCityStats();
+export default function Home() {
+  const stats = getCityStats();
 
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden">
