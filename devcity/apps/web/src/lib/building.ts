@@ -86,6 +86,14 @@ export function computeBuildingDimensions(input: BuildingInput): BuildingDimensi
     0.95
   );
 
+  // ── Glow strength (from followers) ──
+  // More followers = stronger building glow. Clamped to 0–1.5.
+  const glowStrength = clamp(input.followers / 1000 * 1.5, 0, 1.5);
+
+  // ── Window density (from stars) ──
+  // More stars = denser window illumination. Clamped to 0.1–0.8.
+  const windowDensity = clamp(0.1 + Math.min(1, input.totalStars / 1000) * 0.7, 0.1, 0.8);
+
   return {
     height: Math.round(height * 10) / 10,
     width: Math.round(width * 10) / 10,
@@ -94,6 +102,8 @@ export function computeBuildingDimensions(input: BuildingInput): BuildingDimensi
     windowsPerFloor,
     sideWindowsPerFloor,
     litPercentage: Math.round(litPercentage * 100) / 100,
+    glowStrength: Math.round(glowStrength * 100) / 100,
+    windowDensity: Math.round(windowDensity * 100) / 100,
   };
 }
 
@@ -124,16 +134,16 @@ export function seededRandom(seed: string): () => number {
 // Generates a building's accent color from their username.
 
 const BUILDING_PALETTES = [
-  "#c8e64a", // Lime (default)
-  "#64b5f6", // Blue
-  "#ff6b6b", // Red
-  "#ffd93d", // Yellow
-  "#6bcb77", // Green
-  "#e040fb", // Purple
-  "#ff8a65", // Orange
-  "#4fc3f7", // Cyan
-  "#f06292", // Pink
-  "#aed581", // Light Green
+  "#00FFFF", // Cyan (primary)
+  "#FF00FF", // Magenta
+  "#39FF14", // Neon Green
+  "#0066FF", // Electric Blue
+  "#FF1493", // Deep Pink
+  "#FFB000", // Amber
+  "#8B5CF6", // Purple
+  "#00CCFF", // Sky Cyan
+  "#FF4488", // Hot Pink
+  "#44FF88", // Mint
 ];
 
 export function getBuildingColor(login: string): string {

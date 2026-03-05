@@ -1,23 +1,33 @@
 // ─── CityCanvas ────────────────────────────────────────────────
 // The root Three.js canvas component.
-// Cinematic cyberpunk city renderer with starfield, neon grid ground,
-// floating particles, volumetric bloom, and dramatic lighting.
+// Cyberpunk city renderer with neon rain, volumetric fog,
+// reflective wet streets, aurora skybox, and dramatic post-processing.
 
 "use client";
 
 import { Suspense, useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Stats, PerformanceMonitor, Stars, Grid } from "@react-three/drei";
-import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
+import {
+  OrbitControls,
+  Stats,
+  PerformanceMonitor,
+  MeshReflectorMaterial,
+} from "@react-three/drei";
+import {
+  EffectComposer,
+  Bloom,
+  Vignette,
+} from "@react-three/postprocessing";
 import * as THREE from "three";
 import CityScene from "./CityScene";
+import NeonRain from "./NeonRain";
+import VolumetricFog from "./VolumetricFog";
+import CyberpunkSkybox from "./CyberpunkSkybox";
 import type { CityBuilding } from "@devcity/types";
 
 interface CityCanvasProps {
   /** Array of buildings to render in the city */
   buildings: CityBuilding[];
-  /** City theme name */
-  theme?: string;
   /** Show performance stats overlay */
   showStats?: boolean;
   /** Callback when a building is clicked */
@@ -28,15 +38,11 @@ interface CityCanvasProps {
 
 export default function CityCanvas({
   buildings,
-  theme = "midnight",
   showStats = false,
   onBuildingClick,
   healthScores,
 }: CityCanvasProps) {
   const controlsRef = useRef(null);
-
-  // Theme colors
-  const themeColors = getThemeColors(theme);
 
   return (
     <div className="h-full w-full">
@@ -50,35 +56,26 @@ export default function CityCanvas({
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.4,
+          toneMappingExposure: 1.2,
         }}
         dpr={[1, 2]}
         shadows
       >
         {/* Performance monitoring — auto-adjusts quality */}
         <PerformanceMonitor>
-          {/* Sky color */}
-          <color attach="background" args={[themeColors.sky]} />
-
-          {/* ─── Starfield ─── */}
-          <Stars
-            radius={4000}
-            depth={300}
-            count={6000}
-            factor={8}
-            saturation={0.15}
-            fade
-            speed={0.3}
-          />
+          {/* ─── Skybox ─── */}
+          <color attach="background" args={["#050010"]} />
+          <CyberpunkSkybox />
 
           {/* ─── Lighting ─── */}
-          {/* Main ambient */}
-          <ambientLight intensity={themeColors.ambient} />
+          {/* Main ambient — very low for dramatic neon contrast */}
+          <ambientLight intensity={0.08} color="#1a1a3a" />
 
-          {/* Key light — warm from above-right */}
+          {/* Key light — cool purple-blue from above */}
           <directionalLight
             position={[150, 400, 100]}
-            intensity={themeColors.directional}
+            intensity={0.2}
+            color="#6644aa"
             castShadow
             shadow-mapSize={[2048, 2048]}
             shadow-camera-far={1000}
@@ -88,61 +85,79 @@ export default function CityCanvas({
             shadow-camera-bottom={-400}
           />
 
-          {/* Fill light — cool blue from left */}
+          {/* Fill light — cyan from below-left */}
           <directionalLight
-            position={[-200, 250, -150]}
-            intensity={themeColors.directional * 0.3}
-            color="#4466cc"
+            position={[-200, 50, -150]}
+            intensity={0.1}
+            color="#00FFFF"
           />
 
-          {/* Rim light — accent color from behind */}
+          {/* Rim light — magenta from behind for cyberpunk edge */}
           <directionalLight
             position={[0, 100, -300]}
-            intensity={0.15}
-            color={themeColors.accent}
+            intensity={0.12}
+            color="#FF00FF"
           />
 
-          {/* Ground spot — subtle uplight for dramatic glow */}
+          {/* Ground uplights — neon glow bouncing off wet streets */}
           <pointLight
-            position={[0, 5, 0]}
-            intensity={0.8}
-            color={themeColors.accent}
-            distance={200}
+            position={[0, 3, 0]}
+            intensity={0.5}
+            color="#00FFFF"
+            distance={300}
+            decay={2}
+          />
+          <pointLight
+            position={[200, 3, -100]}
+            intensity={0.3}
+            color="#FF00FF"
+            distance={250}
             decay={2}
           />
 
           {/* ─── Fog ─── */}
-          <fog attach="fog" args={[themeColors.fog, 400, 3500]} />
+          <fog attach="fog" args={["#050015", 400, 3500]} />
 
           {/* ─── City Scene ─── */}
           <Suspense fallback={null}>
             <CityScene
               buildings={buildings}
-              theme={theme}
               onBuildingClick={onBuildingClick}
               healthScores={healthScores}
             />
           </Suspense>
 
-          {/* ─── Neon Grid Ground ─── */}
-          <NeonGround
-            groundColor={themeColors.ground}
-            gridColor={themeColors.gridPrimary}
-            gridAccent={themeColors.gridAccent}
+          {/* ─── Wet Reflective Ground ─── */}
+          <WetGround />
+
+          {/* ─── Volumetric Fog ─── */}
+          <VolumetricFog
+            layers={8}
+            color="#0d0528"
+            opacity={0.06}
+            height={150}
+          />
+
+          {/* ─── Neon Rain ─── */}
+          <NeonRain
+            count={6000}
+            color="#88ddff"
+            opacity={0.12}
+            speed={2.5}
           />
 
           {/* ─── Floating Particles ─── */}
-          <FloatingParticles count={250} color={themeColors.accent} />
+          <FloatingParticles count={200} />
 
           {/* ─── Post-processing ─── */}
           <EffectComposer>
             <Bloom
-              intensity={0.7}
-              luminanceThreshold={0.5}
+              intensity={0.8}
+              luminanceThreshold={0.4}
               luminanceSmoothing={0.9}
               mipmapBlur
             />
-            <Vignette eskil={false} offset={0.15} darkness={0.6} />
+            <Vignette eskil={false} offset={0.2} darkness={0.7} />
           </EffectComposer>
 
           {/* ─── Camera Controls ─── */}
@@ -172,73 +187,65 @@ export default function CityCanvas({
   );
 }
 
-// ─── Neon Grid Ground ──────────────────────────────────────────
-// A dark base plane + glowing cyberpunk grid lines.
+// ─── Wet Reflective Ground ─────────────────────────────────────
+// Dark surface with subtle reflections — wet cyberpunk streets.
 
-function NeonGround({
-  groundColor,
-  gridColor,
-  gridAccent,
-}: {
-  groundColor: string;
-  gridColor: string;
-  gridAccent: string;
-}) {
+function WetGround() {
   return (
-    <group>
-      {/* Solid dark ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.2, 0]} receiveShadow>
-        <planeGeometry args={[8000, 8000]} />
-        <meshStandardMaterial color={groundColor} roughness={0.95} metalness={0.05} />
-      </mesh>
-
-      {/* Neon grid overlay */}
-      <Grid
-        position={[0, 0.01, 0]}
-        cellSize={20}
-        cellThickness={0.6}
-        cellColor={gridColor}
-        sectionSize={100}
-        sectionThickness={1.0}
-        sectionColor={gridAccent}
-        fadeDistance={2000}
-        fadeStrength={1.5}
-        infiniteGrid
-        side={THREE.DoubleSide}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} receiveShadow>
+      <planeGeometry args={[6000, 6000]} />
+      <MeshReflectorMaterial
+        mirror={0.15}
+        resolution={512}
+        mixBlur={8}
+        mixStrength={0.6}
+        roughness={0.95}
+        depthScale={1.2}
+        minDepthThreshold={0.4}
+        maxDepthThreshold={1.4}
+        color="#080810"
+        metalness={0.3}
       />
-    </group>
+    </mesh>
   );
 }
 
 // ─── Floating Particles ────────────────────────────────────────
 // Ambient floating specks of light that drift through the city.
 
-function FloatingParticles({ count, color }: { count: number; color: string }) {
+function FloatingParticles({ count }: { count: number }) {
   const ref = useRef<THREE.Points>(null);
 
   const geometry = useMemo(() => {
     const positions = new Float32Array(count * 3);
-    const sizes = new Float32Array(count);
+    const colors = new Float32Array(count * 3);
+    const cyanColor = new THREE.Color("#00FFFF");
+    const magentaColor = new THREE.Color("#FF00FF");
+
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 2000;
       positions[i * 3 + 1] = Math.random() * 600 + 5;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
-      sizes[i] = Math.random() * 2 + 0.5;
+
+      // Randomly cyan or magenta
+      const c = Math.random() > 0.5 ? cyanColor : magentaColor;
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     return geo;
   }, [count]);
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    ref.current.rotation.y = clock.elapsedTime * 0.008;
-    // Gentle bobbing
+    ref.current.rotation.y = clock.elapsedTime * 0.005;
     const positions = ref.current.geometry.attributes.position;
     for (let i = 0; i < count; i++) {
       const baseY = positions.getY(i);
-      positions.setY(i, baseY + Math.sin(clock.elapsedTime * 0.5 + i) * 0.02);
+      positions.setY(i, baseY + Math.sin(clock.elapsedTime * 0.3 + i) * 0.015);
     }
     positions.needsUpdate = true;
   });
@@ -246,75 +253,14 @@ function FloatingParticles({ count, color }: { count: number; color: string }) {
   return (
     <points ref={ref} geometry={geometry}>
       <pointsMaterial
-        size={2}
-        color={color}
+        size={2.5}
+        vertexColors
         transparent
-        opacity={0.35}
+        opacity={0.3}
         sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
     </points>
   );
-}
-
-// ─── Theme Colors ──────────────────────────────────────────────
-
-function getThemeColors(theme: string) {
-  const themes: Record<
-    string,
-    {
-      sky: string;
-      ground: string;
-      fog: string;
-      accent: string;
-      ambient: number;
-      directional: number;
-      gridPrimary: string;
-      gridAccent: string;
-    }
-  > = {
-    midnight: {
-      sky: "#050810",
-      ground: "#080c18",
-      fog: "#050810",
-      accent: "#c8e64a",
-      ambient: 0.2,
-      directional: 0.45,
-      gridPrimary: "#0d1a3a",
-      gridAccent: "#1a3a6a",
-    },
-    sunset: {
-      sky: "#120818",
-      ground: "#150a1a",
-      fog: "#120818",
-      accent: "#ff6b6b",
-      ambient: 0.3,
-      directional: 0.5,
-      gridPrimary: "#2a1020",
-      gridAccent: "#5a2040",
-    },
-    dawn: {
-      sky: "#081520",
-      ground: "#0a1a28",
-      fog: "#081520",
-      accent: "#64b5f6",
-      ambient: 0.35,
-      directional: 0.55,
-      gridPrimary: "#0a2040",
-      gridAccent: "#1a4070",
-    },
-    neon: {
-      sky: "#060006",
-      ground: "#0a000a",
-      fog: "#060006",
-      accent: "#e040fb",
-      ambient: 0.15,
-      directional: 0.35,
-      gridPrimary: "#1a0030",
-      gridAccent: "#4a0080",
-    },
-  };
-
-  return themes[theme] ?? themes.midnight;
 }

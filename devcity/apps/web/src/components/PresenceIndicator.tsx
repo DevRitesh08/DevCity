@@ -1,5 +1,6 @@
 // ─── PresenceIndicator ─────────────────────────────────────────
 // Shows live viewer count on a dev profile via polling.
+// Cyberpunk cyan pulse dot.
 
 "use client";
 
@@ -33,27 +34,21 @@ export default function PresenceIndicator({ login }: PresenceIndicatorProps) {
   }, [login]);
 
   useEffect(() => {
-    // Initial heartbeat
     heartbeat();
-
-    // Heartbeat every 15 seconds
     const interval = setInterval(heartbeat, 15_000);
-
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, [heartbeat]);
 
   if (viewerCount <= 0) return null;
 
   return (
-    <div className="flex items-center gap-1.5 text-xs text-muted">
+    <div className="flex items-center gap-1.5 text-xs text-dc-text-muted mb-3">
       <span className="relative flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-dc-cyan opacity-75" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-dc-cyan" />
       </span>
       <span>
-        {viewerCount} {viewerCount === 1 ? "viewer" : "viewers"} now
+        {viewerCount} {viewerCount === 1 ? "viewer" : "viewers"} online
       </span>
     </div>
   );

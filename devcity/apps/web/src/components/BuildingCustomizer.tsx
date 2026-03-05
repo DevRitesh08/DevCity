@@ -1,6 +1,6 @@
 // ─── BuildingCustomizer ────────────────────────────────────────
 // UI panel for equipping/unequipping cosmetics on your building.
-// Only visible when viewing your own profile while authenticated.
+// Cyberpunk neon-panel styling with holo-btn actions.
 
 "use client";
 
@@ -47,7 +47,7 @@ export default function BuildingCustomizer({ login, kudos, achievements }: Build
     fetch(`/api/dev/${login}/cosmetics`)
       .then((r) => r.json())
       .then((data) => setEquipped(data.equipped || []))
-      .catch(() => {});
+      .catch(() => { });
   }, [login]);
 
   if (!isOwner) return null;
@@ -94,25 +94,24 @@ export default function BuildingCustomizer({ login, kudos, achievements }: Build
       {/* Toggle Button */}
       <button
         onClick={() => setOpen(!open)}
-        className="w-full border-2 border-accent text-accent px-3 py-2 text-xs font-bold hover:bg-accent hover:text-bg transition-colors"
+        className="w-full holo-btn text-xs py-2"
       >
         {open ? "CLOSE CUSTOMIZER" : "🎨 CUSTOMIZE BUILDING"}
       </button>
 
       {/* Customizer Panel */}
       {open && (
-        <div className="mt-2 space-y-3 border-pixel bg-bg p-3">
+        <div className="mt-2 space-y-3 neon-panel p-3">
           {/* Slot Tabs */}
           <div className="flex flex-wrap gap-1">
             {SLOTS.map((slot) => (
               <button
                 key={slot}
                 onClick={() => setActiveSlot(slot)}
-                className={`px-2 py-1 text-[10px] font-bold border transition-all ${
-                  activeSlot === slot
-                    ? "border-accent text-accent bg-bg-card"
-                    : "border-border text-dim hover:text-cream"
-                }`}
+                className={`px-2 py-1 text-[10px] font-bold border transition-all ${activeSlot === slot
+                    ? "border-dc-cyan text-dc-cyan bg-dc-elevated"
+                    : "border-dc-border text-dc-text-dim hover:text-dc-text-secondary"
+                  }`}
               >
                 {SLOT_LABELS[slot]}
                 {equippedMap.has(slot) && " ●"}
@@ -159,17 +158,16 @@ function CosmeticRow({
 }) {
   return (
     <div
-      className={`flex items-center gap-2 border-pixel px-2 py-1.5 text-xs transition-all ${
-        isEquipped
-          ? "bg-bg-card border-accent"
+      className={`flex items-center gap-2 border px-2 py-1.5 text-xs transition-all ${isEquipped
+          ? "bg-dc-elevated border-dc-cyan/50"
           : isUnlocked
-          ? "bg-bg-card border-border hover:border-border-light"
-          : "bg-bg-card border-border opacity-50"
-      }`}
+            ? "bg-dc-elevated border-dc-border hover:border-dc-border-active"
+            : "bg-dc-elevated border-dc-border opacity-50"
+        }`}
     >
       {/* Color preview */}
       <div
-        className="h-6 w-6 border border-border flex-shrink-0 flex items-center justify-center text-sm"
+        className="h-6 w-6 border border-dc-border flex-shrink-0 flex items-center justify-center text-sm"
         style={{ backgroundColor: def.previewColor + "33" }}
       >
         {def.icon}
@@ -177,10 +175,10 @@ function CosmeticRow({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-cream truncate">{def.name}</div>
-        <div className="text-[10px] text-dim truncate">{def.description}</div>
+        <div className="font-bold text-dc-text truncate">{def.name}</div>
+        <div className="text-[10px] text-dc-text-dim truncate">{def.description}</div>
         {!isUnlocked && (
-          <div className="text-[10px] text-muted mt-0.5">
+          <div className="text-[10px] text-dc-text-muted mt-0.5">
             🔒 {formatCondition(def.unlockCondition)}
           </div>
         )}
@@ -191,7 +189,7 @@ function CosmeticRow({
         <button
           onClick={onUnequip}
           disabled={saving}
-          className="flex-shrink-0 border border-red-500 text-red-400 px-2 py-0.5 text-[10px] font-bold hover:bg-red-500/20 disabled:opacity-50"
+          className="flex-shrink-0 border border-red-500/60 text-red-400 px-2 py-0.5 text-[10px] font-bold hover:bg-red-500/20 disabled:opacity-50"
         >
           REMOVE
         </button>
@@ -199,7 +197,7 @@ function CosmeticRow({
         <button
           onClick={onEquip}
           disabled={saving}
-          className="flex-shrink-0 border border-accent text-accent px-2 py-0.5 text-[10px] font-bold hover:bg-accent/20 disabled:opacity-50"
+          className="flex-shrink-0 border border-dc-cyan/60 text-dc-cyan px-2 py-0.5 text-[10px] font-bold hover:bg-dc-cyan/10 disabled:opacity-50"
         >
           EQUIP
         </button>

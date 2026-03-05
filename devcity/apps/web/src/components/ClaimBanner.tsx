@@ -1,9 +1,6 @@
 // ─── ClaimBanner ───────────────────────────────────────────────
 // Shows a prominent CTA for users viewing their own unclaimed building.
-// - Not logged in → "Sign in with GitHub to claim"
-// - Logged in + own profile + unclaimed → "Claim your building"
-// - Claimed → ownership badge (no CTA)
-// Exploration NEVER requires login — only claiming does.
+// Cyberpunk neon-panel styling with holo-btn actions.
 
 "use client";
 
@@ -24,9 +21,9 @@ export default function ClaimBanner({ login, claimed, onClaimed }: ClaimBannerPr
   // Already claimed — show ownership badge
   if (claimed || justClaimed) {
     return (
-      <div className="mb-4 flex items-center gap-2 border-2 border-accent/40 bg-accent/10 px-3 py-2">
-        <span className="text-sm">🏠</span>
-        <span className="text-xs font-bold text-accent">CLAIMED BUILDING</span>
+      <div className="mb-4 flex items-center gap-2 border border-dc-cyan/30 bg-dc-cyan/5 px-3 py-2">
+        <span className="text-sm">⚡</span>
+        <span className="text-xs font-bold text-dc-cyan tracking-wider">CLAIMED BUILDING</span>
       </div>
     );
   }
@@ -37,21 +34,20 @@ export default function ClaimBanner({ login, claimed, onClaimed }: ClaimBannerPr
   // Check if this is the user's own profile
   const isOwnProfile = user?.login === login;
 
-  // Not logged in but viewing any profile — show subtle sign-in hint only on own profile
-  // (We can't know it's their "own" if not logged in, so skip)
+  // Not logged in — show sign-in hint
   if (!user) {
     return (
-      <div className="mb-4 border-2 border-dashed border-border bg-bg-card px-3 py-3">
+      <div className="mb-4 neon-panel px-3 py-3">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-sm">🏗️</span>
-          <span className="text-xs font-bold text-cream">UNCLAIMED BUILDING</span>
+          <span className="text-xs font-bold text-dc-text tracking-wider">UNCLAIMED BUILDING</span>
         </div>
-        <p className="text-[10px] text-muted mb-2">
+        <p className="text-[10px] text-dc-text-muted mb-2">
           Is this your GitHub profile? Sign in to claim this building and unlock customization.
         </p>
         <a
           href="/api/auth/login"
-          className="inline-block border-2 border-accent text-accent px-3 py-1.5 text-xs font-bold hover:bg-accent hover:text-bg transition-colors"
+          className="holo-btn inline-block px-3 py-1.5 text-xs"
         >
           SIGN IN WITH GITHUB
         </a>
@@ -77,20 +73,20 @@ export default function ClaimBanner({ login, claimed, onClaimed }: ClaimBannerPr
   }
 
   return (
-    <div className="mb-4 border-2 border-accent bg-accent/10 px-3 py-3">
+    <div className="mb-4 neon-panel border-dc-cyan/50 px-3 py-3" style={{ borderColor: "rgba(0,255,255,0.4)" }}>
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-sm">🏗️</span>
-        <span className="text-xs font-bold text-accent">THIS IS YOUR BUILDING!</span>
+        <span className="text-sm">⚡</span>
+        <span className="text-xs font-bold text-dc-cyan tracking-wider">THIS IS YOUR BUILDING!</span>
       </div>
-      <p className="text-[10px] text-muted mb-2">
+      <p className="text-[10px] text-dc-text-muted mb-2">
         Claim it to unlock building customization, cosmetics, and ownership badge.
       </p>
       <button
         onClick={handleClaim}
         disabled={claiming}
-        className="border-2 border-accent bg-accent text-bg px-4 py-1.5 text-xs font-bold hover:bg-accent/80 disabled:opacity-50 transition-colors"
+        className="holo-btn holo-btn-primary px-4 py-1.5 text-xs disabled:opacity-50"
       >
-        {claiming ? "CLAIMING..." : "🏗️ CLAIM YOUR BUILDING"}
+        {claiming ? "CLAIMING..." : "⚡ CLAIM YOUR BUILDING"}
       </button>
     </div>
   );

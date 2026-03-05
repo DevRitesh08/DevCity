@@ -26,16 +26,16 @@ interface DistrictZone {
 }
 
 export const DISTRICT_ZONES: DistrictZone[] = [
-  { name: "frontend", displayName: "Frontend Quarter", color: "#64b5f6", angle: 0 },
-  { name: "backend", displayName: "Backend District", color: "#c8e64a", angle: Math.PI * 0.4 },
-  { name: "fullstack", displayName: "Fullstack Heights", color: "#ffd93d", angle: Math.PI * 0.8 },
-  { name: "devops", displayName: "DevOps Industrial", color: "#ff8a65", angle: Math.PI * 1.2 },
-  { name: "mobile", displayName: "Mobile Row", color: "#e040fb", angle: Math.PI * 1.6 },
-  { name: "data", displayName: "Data Lake", color: "#4fc3f7", angle: Math.PI * 0.2 },
-  { name: "ai-ml", displayName: "AI Research Park", color: "#f06292", angle: Math.PI * 0.6 },
-  { name: "security", displayName: "Security Compound", color: "#ff6b6b", angle: Math.PI * 1.0 },
-  { name: "gamedev", displayName: "Game Arcade", color: "#aed581", angle: Math.PI * 1.4 },
-  { name: "open-source", displayName: "Open Source Commons", color: "#6bcb77", angle: Math.PI * 1.8 },
+  { name: "frontend", displayName: "Neon Alley", color: "#00FFFF", angle: 0 },
+  { name: "backend", displayName: "The Forge", color: "#39FF14", angle: Math.PI * 0.4 },
+  { name: "fullstack", displayName: "Nexus Hub", color: "#FFB000", angle: Math.PI * 0.8 },
+  { name: "devops", displayName: "Grid Zero", color: "#FF4488", angle: Math.PI * 1.2 },
+  { name: "mobile", displayName: "Sky Deck", color: "#CC88FF", angle: Math.PI * 1.6 },
+  { name: "data", displayName: "Neural District", color: "#0066FF", angle: Math.PI * 0.2 },
+  { name: "ai-ml", displayName: "Cortex Labs", color: "#FF00FF", angle: Math.PI * 0.6 },
+  { name: "security", displayName: "Shadow Gate", color: "#FF1A1A", angle: Math.PI * 1.0 },
+  { name: "gamedev", displayName: "Pixel Arena", color: "#44FF88", angle: Math.PI * 1.4 },
+  { name: "open-source", displayName: "Commons", color: "#00CCFF", angle: Math.PI * 1.8 },
 ];
 
 // ─── Main Layout Function ──────────────────────────────────────

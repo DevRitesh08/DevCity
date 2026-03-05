@@ -1,6 +1,6 @@
 // ─── CityScene ─────────────────────────────────────────────────
 // Manages the placement and rendering of all buildings in the city.
-// Handles instanced rendering for performance at scale.
+// Groups buildings by district for future district-specific styling.
 
 "use client";
 
@@ -10,14 +10,14 @@ import type { CityBuilding } from "@devcity/types";
 
 interface CitySceneProps {
   buildings: CityBuilding[];
-  theme?: string;
   onBuildingClick?: (login: string) => void;
+  healthScores?: Record<string, number>;
 }
 
 export default function CityScene({
   buildings,
-  theme = "midnight",
   onBuildingClick,
+  healthScores,
 }: CitySceneProps) {
   // Memoize building positions to avoid recalculation
   const positionedBuildings = useMemo(
@@ -31,16 +31,33 @@ export default function CityScene({
     [buildings]
   );
 
+  // Group by district for future district-specific effects
+  const districts = useMemo(() => {
+    const groups: Record<string, typeof positionedBuildings> = {};
+    for (const b of positionedBuildings) {
+      const district = b.district || "downtown-core";
+      if (!groups[district]) groups[district] = [];
+      groups[district].push(b);
+    }
+    return groups;
+  }, [positionedBuildings]);
+
   return (
     <group>
-      {positionedBuildings.map((building) => (
-        <Building
-          key={building.login}
-          building={building}
-          position={[building.x, 0, building.z]}
-          theme={theme}
-          onClick={() => onBuildingClick?.(building.login)}
-        />
+      {/* Render all buildings, grouped by district */}
+      {Object.entries(districts).map(([district, districtBuildings]) => (
+        <group key={district} name={`district-${district}`}>
+          {districtBuildings.map((building) => (
+            <Building
+              key={building.login}
+              building={building}
+              position={[building.x, 0, building.z]}
+              theme="cyberpunk"
+              onClick={() => onBuildingClick?.(building.login)}
+              healthScore={healthScores?.[building.login]}
+            />
+          ))}
+        </group>
       ))}
     </group>
   );

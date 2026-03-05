@@ -1,5 +1,5 @@
 // ─── LeaderboardClient ─────────────────────────────────────────
-// Client component for the leaderboard page with sort controls and stats.
+// Client component for the leaderboard page. Cyberpunk Neon Terminal styling.
 
 "use client";
 
@@ -36,21 +36,21 @@ export default function LeaderboardClient({ entries, stats }: LeaderboardClientP
   }, [entries, sortBy]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg font-pixel text-cream">
+    <div className="flex min-h-screen flex-col bg-dc-void font-mono text-dc-text">
       {/* Header */}
-      <header className="flex items-center justify-between border-b-[3px] border-border bg-bg-raised px-4 py-2">
+      <header className="flex items-center justify-between border-b border-dc-border bg-dc-panel backdrop-blur-md px-4 py-2.5">
         <Link
           href="/"
-          className="text-lg font-bold tracking-wider text-cream hover:text-accent transition-colors"
+          className="text-lg font-display font-bold tracking-[0.15em] text-dc-text hover:text-dc-cyan transition-colors"
         >
-          DEV<span className="text-accent">CITY</span>
+          DEV<span className="text-dc-cyan text-glow-cyan">CITY</span>
         </Link>
 
         <nav className="flex items-center gap-4 text-xs">
-          <Link href="/city" className="text-muted hover:text-accent transition-colors">
+          <Link href="/city" className="text-dc-text-muted hover:text-dc-cyan transition-colors tracking-wider">
             EXPLORE
           </Link>
-          <span className="text-accent font-bold">LEADERBOARD</span>
+          <span className="text-dc-cyan font-bold tracking-wider">LEADERBOARD</span>
           <UserNav />
         </nav>
       </header>
@@ -66,18 +66,17 @@ export default function LeaderboardClient({ entries, stats }: LeaderboardClientP
 
         {/* Sort Controls */}
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted">SORT BY:</span>
+          <span className="text-xs text-dc-text-muted tracking-wider">SORT BY:</span>
           {(["dev_score", "contributions", "total_stars", "followers"] as const).map((key) => {
             const label = key === "dev_score" ? "SCORE" : key === "total_stars" ? "STARS" : key.toUpperCase();
             return (
               <button
                 key={key}
                 onClick={() => setSortBy(key)}
-                className={`px-3 py-1 text-xs font-bold border-2 transition-all ${
-                  sortBy === key
-                    ? "border-accent text-accent bg-bg-card"
-                    : "border-border text-muted hover:border-border-light hover:text-cream"
-                }`}
+                className={`px-3 py-1 text-xs font-bold border transition-all ${sortBy === key
+                    ? "border-dc-cyan text-dc-cyan bg-dc-elevated"
+                    : "border-dc-border text-dc-text-muted hover:border-dc-border-active hover:text-dc-text"
+                  }`}
               >
                 {label}
               </button>
@@ -88,13 +87,13 @@ export default function LeaderboardClient({ entries, stats }: LeaderboardClientP
         {/* Leaderboard Table */}
         {sorted.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-2xl font-bold text-muted mb-2">NO CITIZENS YET</div>
-            <p className="text-sm text-dim">
+            <div className="text-2xl font-display font-bold text-dc-text-muted mb-2">NO CITIZENS YET</div>
+            <p className="text-sm text-dc-text-dim">
               Visit developer profiles to populate the leaderboard.
             </p>
             <Link
               href="/city"
-              className="mt-4 inline-block border-2 border-accent text-accent px-4 py-2 text-sm font-bold hover:bg-accent hover:text-bg transition-colors"
+              className="mt-4 inline-block holo-btn px-4 py-2 text-sm"
             >
               EXPLORE CITY
             </Link>
@@ -102,7 +101,7 @@ export default function LeaderboardClient({ entries, stats }: LeaderboardClientP
         ) : (
           <div className="space-y-1">
             {/* Header Row */}
-            <div className="hidden md:grid grid-cols-[3rem_3rem_1fr_6rem_5rem_5rem_5rem_4rem] gap-2 px-3 py-1 text-[10px] font-bold text-dim uppercase">
+            <div className="hidden md:grid grid-cols-[3rem_3rem_1fr_6rem_5rem_5rem_5rem_4rem] gap-2 px-3 py-1 text-[10px] font-bold text-dc-text-dim uppercase tracking-wider">
               <span>#</span>
               <span></span>
               <span>Developer</span>
@@ -117,15 +116,14 @@ export default function LeaderboardClient({ entries, stats }: LeaderboardClientP
               <Link
                 key={entry.login}
                 href={`/dev/${entry.login}`}
-                className="group grid grid-cols-[3rem_3rem_1fr_auto] md:grid-cols-[3rem_3rem_1fr_6rem_5rem_5rem_5rem_4rem] gap-2 items-center border-pixel bg-bg-card px-3 py-2 hover:bg-bg-raised transition-colors"
+                className="group grid grid-cols-[3rem_3rem_1fr_auto] md:grid-cols-[3rem_3rem_1fr_6rem_5rem_5rem_5rem_4rem] gap-2 items-center neon-panel px-3 py-2 hover:border-dc-border-active transition-colors"
               >
                 {/* Rank */}
-                <span className={`text-sm font-bold ${
-                  idx === 0 ? "text-[#ffd700]" :
-                  idx === 1 ? "text-[#c0c0c0]" :
-                  idx === 2 ? "text-[#cd7f32]" :
-                  "text-muted"
-                }`}>
+                <span className={`text-sm font-bold ${idx === 0 ? "text-[#ffd700]" :
+                    idx === 1 ? "text-[#c0c0c0]" :
+                      idx === 2 ? "text-[#cd7f32]" :
+                        "text-dc-text-muted"
+                  }`}>
                   {idx === 0 ? "👑" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
                 </span>
 
@@ -134,39 +132,38 @@ export default function LeaderboardClient({ entries, stats }: LeaderboardClientP
                 <img
                   src={entry.avatar_url}
                   alt={entry.login}
-                  className="h-8 w-8 border border-border"
-                  style={{ imageRendering: "pixelated" }}
+                  className="h-8 w-8 border border-dc-border rounded-sm"
                 />
 
                 {/* Name */}
                 <div className="min-w-0">
-                  <div className="font-bold text-cream group-hover:text-accent transition-colors truncate">
+                  <div className="font-bold text-dc-text group-hover:text-dc-cyan transition-colors truncate">
                     {entry.name}
                   </div>
-                  <div className="text-[10px] text-dim">@{entry.login}</div>
+                  <div className="text-[10px] text-dc-text-dim">@{entry.login}</div>
                 </div>
 
                 {/* Stats — desktop */}
-                <span className="hidden md:block text-right text-sm font-bold text-accent">
+                <span className="hidden md:block text-right text-sm font-bold text-dc-cyan">
                   {entry.dev_score}
                 </span>
-                <span className="hidden md:block text-right text-xs text-cream">
+                <span className="hidden md:block text-right text-xs text-dc-text">
                   {entry.contributions.toLocaleString()}
                 </span>
-                <span className="hidden md:block text-right text-xs text-cream">
+                <span className="hidden md:block text-right text-xs text-dc-text">
                   {entry.total_stars.toLocaleString()}
                 </span>
-                <span className="hidden md:block text-right text-xs text-cream">
+                <span className="hidden md:block text-right text-xs text-dc-text">
                   {entry.followers.toLocaleString()}
                 </span>
-                <span className="hidden md:block text-right text-xs text-muted">
+                <span className="hidden md:block text-right text-xs text-dc-text-muted">
                   {entry.achievementCount > 0 ? `×${entry.achievementCount}` : "—"}
                 </span>
 
                 {/* Mobile compact stats */}
                 <div className="md:hidden flex flex-col items-end text-[10px]">
-                  <span className="font-bold text-accent">{entry.dev_score} pts</span>
-                  <span className="text-dim">{entry.contributions.toLocaleString()} commits</span>
+                  <span className="font-bold text-dc-cyan">{entry.dev_score} pts</span>
+                  <span className="text-dc-text-dim">{entry.contributions.toLocaleString()} commits</span>
                 </div>
               </Link>
             ))}
@@ -175,7 +172,7 @@ export default function LeaderboardClient({ entries, stats }: LeaderboardClientP
       </main>
 
       {/* Footer */}
-      <footer className="border-t-[3px] border-border bg-bg-raised px-4 py-3 text-center text-xs text-dim">
+      <footer className="border-t border-dc-border bg-dc-panel backdrop-blur-md px-4 py-3 text-center text-xs text-dc-text-dim tracking-wider">
         DEVCITY LEADERBOARD — Rank is recalculated on every profile visit
       </footer>
     </div>
@@ -194,11 +191,11 @@ function StatCard({
   accent?: boolean;
 }) {
   return (
-    <div className="border-pixel bg-bg-card px-3 py-2">
-      <div className={`text-lg font-bold ${accent ? "text-accent" : "text-cream"}`}>
+    <div className="neon-panel px-3 py-2">
+      <div className={`text-lg font-display font-bold ${accent ? "text-dc-cyan" : "text-dc-text"}`}>
         {value}
       </div>
-      <div className="text-[10px] text-dim">{label}</div>
+      <div className="text-[10px] text-dc-text-dim tracking-wider">{label}</div>
     </div>
   );
 }

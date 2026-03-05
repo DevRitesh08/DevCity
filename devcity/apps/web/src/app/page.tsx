@@ -7,41 +7,41 @@ export default function Home() {
   const stats = getCityStats();
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden">
+    <main className="relative flex min-h-screen flex-col overflow-hidden bg-dc-void">
       {/* ── Animated grid background ── */}
       <div
-        className="absolute inset-0 opacity-[0.07] animate-grid-scroll"
+        className="absolute inset-0 opacity-[0.04] animate-grid-scroll"
         style={{
           backgroundImage:
-            "linear-gradient(#1a3a6a 1px, transparent 1px), linear-gradient(90deg, #1a3a6a 1px, transparent 1px)",
-          backgroundSize: "50px 50px",
+            "linear-gradient(rgba(0,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,255,0.3) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
         }}
       />
 
-      {/* ── Radial glow ── */}
+      {/* ── Radial glow — cyan/magenta blend ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse at 50% 40%, rgba(200,230,74,0.06) 0%, transparent 60%)",
+            "radial-gradient(ellipse at 50% 30%, rgba(0,255,255,0.04) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(255,0,255,0.03) 0%, transparent 50%)",
         }}
       />
 
       {/* ── Nav bar ── */}
-      <header className="relative z-10 flex items-center justify-between border-b-[3px] border-border bg-bg-raised/80 backdrop-blur-sm px-4 py-2">
-        <span className="text-lg font-bold tracking-wider text-cream">
-          DEV<span className="text-accent">CITY</span>
+      <header className="relative z-10 flex items-center justify-between border-b border-dc-border bg-dc-panel backdrop-blur-md px-4 py-2.5">
+        <span className="text-lg font-display font-bold tracking-[0.15em] text-dc-text">
+          DEV<span className="text-dc-cyan text-glow-cyan">CITY</span>
         </span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Link
             href="/city"
-            className="text-xs font-bold text-muted hover:text-accent transition-colors"
+            className="text-xs font-bold text-dc-text-muted tracking-wider hover:text-dc-cyan transition-colors"
           >
             EXPLORE CITY
           </Link>
           <Link
             href="/leaderboard"
-            className="text-xs font-bold text-muted hover:text-accent transition-colors"
+            className="text-xs font-bold text-dc-text-muted tracking-wider hover:text-dc-cyan transition-colors"
           >
             LEADERBOARD
           </Link>
@@ -53,80 +53,84 @@ export default function Home() {
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8 p-8">
         {/* Title with neon glow */}
         <div className="text-center">
+          <p className="text-xs font-mono text-dc-text-dim tracking-[0.3em] mb-4 animate-neon-flicker">
+            ⚡ INITIALIZING CITY SYSTEMS ⚡
+          </p>
           <h1
-            className="text-5xl font-bold tracking-[0.2em] sm:text-7xl lg:text-8xl animate-neon-pulse"
-            style={{
-              textShadow:
-                "0 0 20px rgba(200,230,74,0.4), 0 0 40px rgba(200,230,74,0.2), 0 0 80px rgba(200,230,74,0.1)",
-            }}
+            className="text-5xl font-display font-bold tracking-[0.2em] sm:text-7xl lg:text-8xl animate-neon-pulse text-dc-cyan"
           >
-            DEV<span className="text-accent">CITY</span>
+            DEV<span className="text-dc-magenta">CITY</span>
           </h1>
-          <p className="mt-6 max-w-xl text-base sm:text-lg text-muted tracking-wide leading-relaxed">
-            Your GitHub profile as a <span className="text-cream font-bold">3D skyscraper</span> in
-            a living cyberpunk city. The more you contribute, the taller your building rises.
+          <p className="mt-6 max-w-xl text-sm sm:text-base text-dc-text-secondary tracking-wide leading-relaxed font-mono">
+            Your GitHub profile as a{" "}
+            <span className="text-dc-cyan font-bold">neon-lit skyscraper</span>{" "}
+            in a living cyberpunk city. The more you contribute, the taller
+            your tower rises.
           </p>
         </div>
 
         {/* Search */}
         <div className="w-full max-w-lg">
           <SearchBar autoFocus />
-          <p className="mt-2 text-center text-[10px] text-dim tracking-wider">
-            SEARCH ANY GITHUB USERNAME TO EXPLORE THEIR BUILDING
+          <p className="mt-2 text-center text-[10px] text-dc-text-dim tracking-[0.2em]">
+            ENTER GITHUB USERNAME TO LOCATE BUILDING
           </p>
         </div>
 
         {/* Live Stats */}
         <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="border-pixel bg-bg-card/80 backdrop-blur-sm px-6 py-4 transition-transform hover:scale-105">
+          <div className="neon-panel px-6 py-4 transition-all hover:border-dc-border-active hover:box-glow-cyan">
             <div
-              className="text-2xl sm:text-3xl font-bold text-accent"
-              style={{ textShadow: "0 0 10px rgba(200,230,74,0.3)" }}
+              className="text-2xl sm:text-3xl font-display font-bold text-dc-cyan"
+              style={{ textShadow: "0 0 15px rgba(0,255,255,0.4)" }}
             >
               {stats.totalDevelopers || "∞"}
             </div>
-            <div className="mt-1 text-[10px] text-muted tracking-wider">DEVELOPERS</div>
-          </div>
-          <div className="border-pixel bg-bg-card/80 backdrop-blur-sm px-6 py-4 transition-transform hover:scale-105">
-            <div
-              className="text-2xl sm:text-3xl font-bold text-cream"
-              style={{ textShadow: "0 0 10px rgba(232,220,200,0.2)" }}
-            >
-              {stats.totalContributions ? stats.totalContributions.toLocaleString() : "∞"}
+            <div className="mt-1 text-[10px] text-dc-text-muted tracking-[0.2em]">
+              DEVELOPERS
             </div>
-            <div className="mt-1 text-[10px] text-muted tracking-wider">CONTRIBUTIONS</div>
           </div>
-          <div className="border-pixel bg-bg-card/80 backdrop-blur-sm px-6 py-4 transition-transform hover:scale-105">
+          <div className="neon-panel px-6 py-4 transition-all hover:border-dc-border-active hover:box-glow-cyan">
             <div
-              className="text-2xl sm:text-3xl font-bold text-cream"
-              style={{ textShadow: "0 0 10px rgba(232,220,200,0.2)" }}
+              className="text-2xl sm:text-3xl font-display font-bold text-dc-text"
+              style={{ textShadow: "0 0 10px rgba(240,246,252,0.2)" }}
             >
-              {stats.totalStars ? stats.totalStars.toLocaleString() : "∞"}
+              {stats.totalContributions
+                ? stats.totalContributions.toLocaleString()
+                : "∞"}
             </div>
-            <div className="mt-1 text-[10px] text-muted tracking-wider">TOTAL STARS</div>
+            <div className="mt-1 text-[10px] text-dc-text-muted tracking-[0.2em]">
+              CONTRIBUTIONS
+            </div>
+          </div>
+          <div className="neon-panel px-6 py-4 transition-all hover:border-dc-border-active hover:box-glow-cyan">
+            <div
+              className="text-2xl sm:text-3xl font-display font-bold text-dc-text"
+              style={{ textShadow: "0 0 10px rgba(240,246,252,0.2)" }}
+            >
+              {stats.totalStars
+                ? stats.totalStars.toLocaleString()
+                : "∞"}
+            </div>
+            <div className="mt-1 text-[10px] text-dc-text-muted tracking-[0.2em]">
+              TOTAL STARS
+            </div>
           </div>
         </div>
 
         {/* CTA Buttons */}
         <div className="flex items-center gap-4">
-          <Link
-            href="/city"
-            className="border-2 border-accent bg-accent text-bg px-6 py-2.5 text-sm font-bold tracking-wider hover:bg-accent-hover transition-colors"
-            style={{ boxShadow: "0 0 20px rgba(200,230,74,0.2)" }}
-          >
-            EXPLORE THE CITY →
+          <Link href="/city" className="holo-btn holo-btn-primary">
+            EXPLORE THE CITY ⚡
           </Link>
-          <Link
-            href="/leaderboard"
-            className="border-2 border-border text-muted px-6 py-2.5 text-sm font-bold tracking-wider hover:border-cream hover:text-cream transition-colors"
-          >
+          <Link href="/leaderboard" className="holo-btn">
             LEADERBOARD
           </Link>
         </div>
 
         {/* Footer */}
-        <p className="text-[10px] text-dim tracking-wider">
-          Phase 3 — Search-First · Claim · Customize · Skyscrapers
+        <p className="text-[10px] text-dc-text-dim tracking-[0.2em]">
+          PHASE 1 · CYBERPUNK PROTOTYPE · NEON TERMINAL v0.1
         </p>
       </div>
 
@@ -136,11 +140,13 @@ export default function Home() {
           (h, i) => (
             <div
               key={i}
-              className="border-t border-x border-accent/10"
               style={{
                 width: "3%",
                 height: `${h}px`,
-                background: `linear-gradient(to top, rgba(200,230,74,${0.02 + (h / 95) * 0.04}), transparent)`,
+                background: `linear-gradient(to top, rgba(0,255,255,${0.02 + (h / 95) * 0.06}), transparent)`,
+                borderTop: "1px solid rgba(0,255,255,0.1)",
+                borderLeft: "1px solid rgba(0,255,255,0.05)",
+                borderRight: "1px solid rgba(0,255,255,0.05)",
                 opacity: 0,
                 animation: `buildingRise 0.8s ease-out ${i * 0.06}s forwards`,
               }}

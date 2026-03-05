@@ -6,16 +6,16 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://devcity.dev";
 
 export const metadata: Metadata = {
   title: {
-    default: "DevCity — Where Code Builds Cities",
+    default: "DevCity — Your GitHub Profile as a Cyberpunk Skyscraper",
     template: "%s | DevCity",
   },
   description:
-    "Your developer profile as a 3D pixel art building in an interactive city. Connect GitHub, GitLab, npm & more.",
+    "Your GitHub profile as a neon-lit 3D skyscraper in a living cyberpunk city. The more you contribute, the taller your tower rises.",
   metadataBase: new URL(BASE_URL),
   openGraph: {
-    title: "DevCity — Where Code Builds Cities",
+    title: "DevCity — Your GitHub Profile as a Cyberpunk Skyscraper",
     description:
-      "Your developer profile as a 3D pixel art building. Explore, connect, grow.",
+      "A neon-lit 3D cyberpunk city where every developer is a skyscraper. Explore, claim, customize.",
     url: BASE_URL,
     siteName: "DevCity",
     type: "website",
@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "DevCity — Where Code Builds Cities",
+    title: "DevCity — Your GitHub Profile as a Cyberpunk Skyscraper",
     description:
-      "Your developer profile as a 3D pixel art building. Explore, connect, grow.",
+      "A neon-lit 3D cyberpunk city where every developer is a skyscraper. Explore, claim, customize.",
   },
   robots: {
     index: true,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0e1a",
+  themeColor: "#0A0A0F",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        {/* Pixel font — Silkscreen from Google Fonts */}
+        {/* Cyberpunk fonts — JetBrains Mono + Orbitron from Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -56,11 +56,13 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Orbitron:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-bg font-pixel text-cream antialiased">
+      <body className="min-h-screen bg-dc-void font-mono text-dc-text antialiased">
+        {/* Scanline overlay — subtle cyberpunk effect */}
+        <div className="scanline-overlay" />
         <AuthProvider>
           {children}
         </AuthProvider>

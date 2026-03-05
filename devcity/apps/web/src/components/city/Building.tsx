@@ -31,8 +31,8 @@ const WINDOW_HEIGHT = 1.6;
 const WINDOW_DARK = "#0a0a1a";
 /** Lit window color range — warmer and brighter */
 const WINDOW_LIT_COLORS = [
-  "#ffe066", "#ffd93d", "#ffecb3", "#fff9c4", "#ffffff",
-  "#88ccff", "#aaddff", "#66bbee",
+  "#00FFFF", "#33DDFF", "#66EEFF", "#FFFFFF",
+  "#88CCFF", "#AADDFF", "#CC88FF", "#FF88DD",
 ];
 
 /** Threshold for "tall" buildings that get special rooftop features */
@@ -360,13 +360,13 @@ export default function Building({
           <meshStandardMaterial
             color={
               healthScore >= 0.7 ? "#4ade80" :
-              healthScore >= 0.4 ? "#fbbf24" :
-              "#f87171"
+                healthScore >= 0.4 ? "#fbbf24" :
+                  "#f87171"
             }
             emissive={
               healthScore >= 0.7 ? "#4ade80" :
-              healthScore >= 0.4 ? "#fbbf24" :
-              "#f87171"
+                healthScore >= 0.4 ? "#fbbf24" :
+                  "#f87171"
             }
             emissiveIntensity={0.8}
             toneMapped={false}
@@ -465,7 +465,7 @@ export default function Building({
           style={{ pointerEvents: "none" }}
         >
           <div
-            className="px-4 py-2 text-center font-pixel text-sm text-white whitespace-nowrap"
+            className="px-4 py-2 text-center font-mono text-sm text-white whitespace-nowrap"
             style={{
               background: "rgba(5, 8, 16, 0.95)",
               border: `2px solid ${accentColor}`,

@@ -1,29 +1,46 @@
 @import "tailwindcss";
 
-/* ─── DevCity Design Tokens ─────────────────────────────────── */
-/* Pixel-art inspired dark theme matching Git City's aesthetic   */
+/* ─── DevCity Neon Terminal Design System ───────────────────── */
+/* Cyberpunk aesthetic: glassmorphic panels, neon accents,       */
+/* JetBrains Mono + Orbitron fonts. NOT pixel art.               */
 
 @theme {
-  /* ── Colors ── */
-  --color-bg: #0a0e1a;
-  --color-bg-raised: #111827;
-  --color-bg-card: #151c2c;
-  --color-border: #2a2a3a;
-  --color-border-light: #3a3a4a;
+  /* ── Background Colors ── */
+  --color-dc-void: #0A0A0F;
+  --color-dc-surface: #0D1117;
+  --color-dc-elevated: #161B22;
+  --color-dc-steel: #21262D;
+  --color-dc-panel: rgba(13, 17, 23, 0.85);
 
-  --color-cream: #e8dcc8;
-  --color-warm: #c8b89a;
-  --color-muted: #8c8c9c;
-  --color-dim: #5c5c6c;
+  /* ── Neon Accent Colors ── */
+  --color-dc-cyan: #00FFFF;
+  --color-dc-magenta: #FF00FF;
+  --color-dc-green: #39FF14;
+  --color-dc-amber: #FFB000;
+  --color-dc-pink: #FF1493;
+  --color-dc-blue: #0066FF;
 
-  --color-accent: #c8e64a;
-  --color-accent-hover: #d4f060;
-  --color-shadow: #6a7a20;
+  /* ── Text Colors ── */
+  --color-dc-text: #F0F6FC;
+  --color-dc-text-secondary: #C9D1D9;
+  --color-dc-text-muted: #8B949E;
+  --color-dc-text-dim: #484F58;
 
-  --color-danger: #ff4d4d;
-  --color-warning: #ffa64d;
-  --color-success: #4dff88;
-  --color-info: #4dc8ff;
+  /* ── Border Colors ── */
+  --color-dc-border: rgba(0, 255, 255, 0.15);
+  --color-dc-border-active: rgba(0, 255, 255, 0.5);
+
+  /* ── Legacy compatibility aliases ── */
+  --color-bg: #0A0A0F;
+  --color-bg-raised: #0D1117;
+  --color-bg-card: #161B22;
+  --color-border: rgba(0, 255, 255, 0.15);
+  --color-border-light: rgba(0, 255, 255, 0.3);
+  --color-cream: #F0F6FC;
+  --color-muted: #8B949E;
+  --color-dim: #484F58;
+  --color-accent: #00FFFF;
+  --color-accent-hover: #33FFFF;
 
   /* Achievement tier colors */
   --color-tier-bronze: #cd7f32;
@@ -32,67 +49,126 @@
   --color-tier-diamond: #b9f2ff;
 
   /* ── Fonts ── */
-  --font-pixel: "Silkscreen", monospace;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-display: "Orbitron", "Rajdhani", sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
 /* ─── Base Styles ───────────────────────────────────────────── */
 
 body {
-  background-color: var(--color-bg);
-  color: var(--color-cream);
-  font-family: var(--font-pixel);
+  background-color: var(--color-dc-void);
+  color: var(--color-dc-text);
+  font-family: var(--font-mono);
 }
 
-/* ─── Pixel Button Press Effect ─────────────────────────────── */
+/* ─── Neon Terminal Components ──────────────────────────────── */
 
-.btn-press {
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+/* Glassmorphic panel — primary container */
+.neon-panel {
+  background: var(--color-dc-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-dc-border);
+  position: relative;
+}
+
+/* Corner accents — "L" shaped neon marks */
+.neon-panel::before,
+.neon-panel::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--color-dc-cyan);
+  pointer-events: none;
+}
+
+.neon-panel::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.neon-panel::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+/* Neon glow button */
+.holo-btn {
+  background: transparent;
+  border: 1px solid var(--color-dc-cyan);
+  color: var(--color-dc-cyan);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.625rem 1.5rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
-.btn-press:active {
-  transform: translate(2px, 2px);
-  box-shadow: none !important;
+.holo-btn:hover {
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.05);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
-/* ─── Scrollbar (pixel-themed) ──────────────────────────────── */
+.holo-btn-primary {
+  background: rgba(0, 255, 255, 0.15);
+  border-color: var(--color-dc-cyan);
+}
+
+/* Neon input */
+.neon-input {
+  background: rgba(13, 17, 23, 0.9);
+  border: 1px solid var(--color-dc-border);
+  color: var(--color-dc-text);
+  font-family: var(--font-mono);
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.neon-input:focus {
+  border-color: var(--color-dc-cyan);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.15), inset 0 0 15px rgba(0, 255, 255, 0.03);
+}
+
+.neon-input::placeholder {
+  color: var(--color-dc-text-dim);
+}
+
+/* ─── Scrollbar (cyberpunk) ─────────────────────────────────── */
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: var(--color-dc-void);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border: 2px solid var(--color-bg);
+  background: rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(0, 255, 255, 0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-light);
+  background: rgba(0, 255, 255, 0.4);
 }
 
 /* ─── Selection ─────────────────────────────────────────────── */
 
 ::selection {
-  background-color: var(--color-accent);
-  color: var(--color-bg);
-}
-
-/* ─── Utility classes ───────────────────────────────────────── */
-
-.text-shadow-pixel {
-  text-shadow: 2px 2px 0 var(--color-bg);
-}
-
-.border-pixel {
-  border: 3px solid var(--color-border);
-  image-rendering: pixelated;
+  background-color: rgba(0, 255, 255, 0.3);
+  color: #fff;
 }
 
 /* ─── Animations ────────────────────────────────────────────── */
@@ -107,29 +183,31 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-@keyframes loadingBar {
-  0% { width: 0%; }
-  50% { width: 85%; }
-  100% { width: 100%; }
-}
-
-@keyframes buildingRise {
-  0% { opacity: 0; transform: scaleY(0); transform-origin: bottom; }
-  100% { opacity: 0.4; transform: scaleY(1); transform-origin: bottom; }
-}
-
 @keyframes neonPulse {
   0%, 100% {
-    text-shadow: 0 0 10px rgba(200,230,74,0.4), 0 0 20px rgba(200,230,74,0.2);
+    text-shadow: 0 0 10px rgba(0,255,255,0.4), 0 0 20px rgba(0,255,255,0.2);
   }
   50% {
-    text-shadow: 0 0 20px rgba(200,230,74,0.6), 0 0 40px rgba(200,230,74,0.3), 0 0 80px rgba(200,230,74,0.15);
+    text-shadow: 0 0 20px rgba(0,255,255,0.7), 0 0 40px rgba(0,255,255,0.4), 0 0 80px rgba(0,255,255,0.2);
   }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 2px); }
+}
+
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+  20%, 24%, 55% { opacity: 0.6; }
 }
 
 @keyframes gridScroll {
@@ -142,9 +220,19 @@ body {
   50% { transform: translateY(-8px); }
 }
 
-@keyframes statCountUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes buildingRise {
+  0% { opacity: 0; transform: scaleY(0); transform-origin: bottom; }
+  100% { opacity: 0.6; transform: scaleY(1); transform-origin: bottom; }
+}
+
+@keyframes terminalBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes dataStream {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
 }
 
 .animate-fade-in {
@@ -153,10 +241,6 @@ body {
 
 .animate-slide-up {
   animation: slideUp 0.4s ease-out;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 .animate-neon-pulse {
@@ -169,4 +253,37 @@ body {
 
 .animate-grid-scroll {
   animation: gridScroll 20s linear infinite;
+}
+
+.animate-neon-flicker {
+  animation: neonFlicker 4s linear infinite;
+}
+
+/* Scanline overlay */
+.scanline-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 255, 0.015) 2px,
+    rgba(0, 255, 255, 0.015) 4px
+  );
+}
+
+/* Neon text glow utility */
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+.text-glow-magenta {
+  text-shadow: 0 0 10px rgba(255, 0, 255, 0.5), 0 0 30px rgba(255, 0, 255, 0.2);
+}
+
+/* Box glow utility */
+.box-glow-cyan {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2), inset 0 0 15px rgba(0, 255, 255, 0.03);
 }
