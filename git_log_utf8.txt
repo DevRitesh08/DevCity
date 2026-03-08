@@ -1,0 +1,5 @@
+﻿e54df45 feat: add agent management scripts and VS Code tasks
+09730f9 feat: Implement DevCity web application with 3D city visualization and establish Antigravity skill and workflow systems.
+a2a8cc0 Refactor CityCanvas component for improved lighting and ground rendering
+e8e5e9a feat: Implement initial 3D city rendering with new building types, components, and layout utilities.
+5d29b44 first commit

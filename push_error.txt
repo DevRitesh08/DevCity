@@ -1,0 +1,323 @@
+﻿git : 
+remote: 
+error: 
+GH013: R
+epositor
+y rule v
+iolation
+s found 
+for refs
+/heads/m
+ain.    
+    
+At 
+line:1 
+char:1
++ git 
+push 
+origin 
+main -f 
+2>&1 | O
+ut-File 
+push_err
+or.txt -
+Encoding
+ utf8
++ ~~~~~~
+~~~~~~~~
+~~~~~~~~
+~~~~~~
+    + C 
+   ate  
+  gor   
+ yIn    
+fo      
+        
+        
+    : N 
+   otS  
+  pec   
+ ifi    
+ed:     
+(r    
+emo    
+te:     
+er    
+ror    
+: .    
+..s    
+/ma    
+in.     
+        
+       
+:    
+Str    
+ing    
+) [    
+],     
+Rem    
+ote    
+Exc    
+ept    
+ion
+    + F 
+   ull  
+  yQu   
+ ali    
+fie    
+dEr    
+ror    
+Id     
+: N    
+ati    
+veC    
+omm    
+and    
+Err    
+or
+ 
+remote: 
+remote: 
+- 
+GITHUB 
+PUSH PRO
+TECTION 
+       
+remote: 
+  ΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇö   
+     
+remote: 
+    
+Resolve 
+the foll
+owing vi
+olations
+ before 
+pushing 
+again   
+     
+remote: 
+remote: 
+    - 
+Push 
+cannot 
+contain 
+secrets 
+       
+remote: 
+remote: 
+        
+    
+remote: 
+     
+(?) 
+Learn 
+how to 
+resolve 
+a 
+blocked 
+push    
+    
+remote: 
+     htt
+ps://doc
+s.github
+.com/cod
+e-securi
+ty/secre
+t-scanni
+ng/worki
+ng-with-
+secret-s
+canning-
+and-push
+-protect
+ion/work
+ing-with
+-push-pr
+otection
+-from-th
+e-comman
+d-line#r
+esolving
+-a-block
+ed-push 
+       
+remote: 
+        
+    
+remote: 
+     
+(?) 
+This rep
+ository 
+does 
+not 
+have 
+Secret S
+canning 
+enabled,
+ but is 
+eligible
+. 
+Enable 
+Secret S
+canning 
+to view 
+and 
+manage d
+etected 
+secrets.
+        
+remote: 
+     
+Visit 
+the repo
+sitory s
+ettings 
+page, ht
+tps://gi
+thub.com
+/DevRite
+sh08/Dev
+City/set
+tings/se
+curity_a
+nalysis 
+       
+remote: 
+        
+    
+remote: 
+        
+    
+remote: 
+      
+ΓÇöΓÇö 
+Groq 
+API Key 
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+ÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓ
+Çö      
+  
+remote: 
+       l
+ocations
+:       
+ 
+remote: 
+        
+ - 
+commit: 
+09c21e0b
+f4d0bace
+b56e6854
+45c10aaf
+3ea1cfa9
+        
+remote: 
+        
+   
+path: de
+vcity/.e
+nv.local
+.templat
+e:9     
+   
+remote: 
+        
+    
+remote: 
+       
+(?) To 
+push, 
+remove 
+secret 
+from com
+mit(s) 
+or 
+follow 
+this 
+URL to 
+allow 
+the 
+secret. 
+       
+remote: 
+       h
+ttps://g
+ithub.co
+m/DevRit
+esh08/De
+vCity/se
+curity/s
+ecret-sc
+anning/u
+nblock-s
+ecret/3A
+fUPZATc2
+hEEA5Vs1
+dIQHnSgH
+c       
+ 
+remote: 
+        
+    
+remote: 
+remote: 
+To https
+://githu
+b.com/De
+vRitesh0
+8/DevCit
+y.git
+ ! 
+[remote 
+rejected
+] main 
+-> main 
+(push de
+clined 
+due to r
+epositor
+y rule v
+iolation
+s)
+error: 
+failed 
+to push 
+some 
+refs to 
+'https:/
+/github.
+com/DevR
+itesh08/
+DevCity.
+git'

@@ -1,0 +1,79 @@
+﻿git : 
+To https
+://githu
+b.com/De
+vRitesh0
+8/DevCit
+y.git
+At 
+line:1 
+char:1
++ git 
+push 
+origin 
+main -f 
+2>&1 | O
+ut-File 
+push_err
+or2.txt 
+-Encodin
+g utf 
+...
++ ~~~~~~
+~~~~~~~~
+~~~~~~~~
+~~~~~~
+    + C 
+   ate  
+  gor   
+ yIn    
+fo      
+        
+        
+    : N 
+   otS  
+  pec   
+ ifi    
+ed:     
+(T    o 
+h    
+ttp    
+s:/    
+/gi    
+th.    
+..h    
+08/    
+Dev    
+Cit    
+y.g    
+it:    
+Str    
+ing    
+) [    
+],     
+Rem    
+ote    
+Exc    
+ept    
+ion
+    + F 
+   ull  
+  yQu   
+ ali    
+fie    
+dEr    
+ror    
+Id     
+: N    
+ati    
+veC    
+omm    
+and    
+Err    
+or
+ 
+   09730
+f9..e54d
+f45  
+main -> 
+main
