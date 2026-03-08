@@ -1,0 +1,103 @@
+{
+  // ─── ISLEFOLIO — VS CODE TASKS ─────────────────────────────────────────────
+  // Copy to: YOUR_PROJECT/.vscode/tasks.json
+  //
+  // HOW TO RUN:
+  //   Ctrl+Shift+P → "Tasks: Run Task" → pick one
+  //   OR use the keyboard shortcuts defined below
+  //
+  "version": "2.0.0",
+  "tasks": [
+
+    // ── RUN ALL AGENTS (main command) ─────────────────────────────────────────
+    {
+      "label": "🏝️ ISLEFOLIO: Run All Agents",
+      "type": "shell",
+      "command": "npm run agents",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": [],
+      "runOptions": { "instanceLimit": 1 }
+    },
+
+    // ── INDIVIDUAL AGENTS (run one at a time) ─────────────────────────────────
+    {
+      "label": "🌊 TIDE WATCHER: Code Inspection",
+      "type": "shell",
+      "command": "npm run agent:tide-watcher",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "⛈️ STORM DETECTOR: Bug Fix",
+      "type": "shell",
+      "command": "npm run agent:storm-detector",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "🌊 WAVE RIDER: Performance Check",
+      "type": "shell",
+      "command": "npm run agent:wave-rider",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "🗺️ TERRAIN KEEPER: Generation Check",
+      "type": "shell",
+      "command": "npm run agent:terrain-keeper",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "🧭 COMPASS ROSE: Architecture Review",
+      "type": "shell",
+      "command": "npm run agent:compass-rose",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+
+    // ── UTILITY TASKS ─────────────────────────────────────────────────────────
+    {
+      "label": "🗑️ Delete Old Agents",
+      "type": "shell",
+      "command": "npm run agents:delete-old",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "📊 View Latest Report",
+      "type": "shell",
+      "command": "node -e \"const fs=require('fs'),p=require('path');const dir='.antigravity/reports';const files=fs.readdirSync(dir).filter(f=>f.endsWith('.json')).sort().reverse();if(!files.length){console.log('No reports yet. Run agents first.')}else{const f=p.join(dir,files[0]);const r=JSON.parse(fs.readFileSync(f,'utf-8'));console.log('\\n=== LATEST REPORT: '+files[0]+' ===\\n');console.log(JSON.stringify(r,null,2))}\"",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "❤️ Codebase Health Score",
+      "type": "shell",
+      "command": "node -e \"try{const s=require('./.antigravity/memory/ecosystem-state.json');const h=s.codebase_health_history;if(!h||!h.length){console.log('No health data yet. Run agents first.')}else{const latest=h[h.length-1];const prev=h.length>1?h[h.length-2]:null;const delta=prev?latest.score-prev.score:0;const trend=delta>0?'📈 +'+delta:delta<0?'📉 '+delta:'➡️ stable';console.log('\\nHealth Score: '+latest.score+'/100 '+trend+' ('+latest.date+')')}}catch(e){console.log('No health data yet.')}\"",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔄 Watch Mode (Auto-run on save)",
+      "type": "shell",
+      "command": "npm run agents:watch",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "^(.*)$", "message": 1 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Running",
+          "endsPattern": "complete"
+        }
+      }
+    }
+  ]
+}

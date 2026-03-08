@@ -1,6 +1,6 @@
 // ─── SearchBar ─────────────────────────────────────────────────
 // Client-side search input that navigates to /dev/[username].
-// Uses neon-input styling from the Neon Terminal design system.
+// ISLEFOLIO island theme styling.
 
 "use client";
 
@@ -33,14 +33,14 @@ export default function SearchBar({ autoFocus = false, className = "" }: SearchB
 
   return (
     <form onSubmit={handleSubmit} className={`w-full max-w-md ${className}`}>
-      <div className="flex items-center border border-dc-border bg-dc-surface/90 backdrop-blur-sm">
-        <span className="px-3 text-sm text-dc-cyan font-mono">@</span>
+      <div className="flex items-center rounded-lg border border-white/15 bg-white/5 backdrop-blur-sm overflow-hidden">
+        <span className="px-3 text-sm text-dc-cyan font-body">@</span>
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter GitHub username..."
-          className="flex-1 bg-transparent px-2 py-3 text-dc-text font-mono text-sm outline-none placeholder:text-dc-text-dim focus:placeholder:text-dc-text-muted"
+          className="flex-1 bg-transparent px-2 py-3 text-dc-text font-body text-sm outline-none placeholder:text-dc-text-dim focus:placeholder:text-dc-text-muted"
           autoFocus={autoFocus}
           disabled={loading}
           maxLength={39}
@@ -48,9 +48,9 @@ export default function SearchBar({ autoFocus = false, className = "" }: SearchB
         <button
           type="submit"
           disabled={loading || !username.trim()}
-          className="holo-btn holo-btn-primary px-4 py-3 text-xs border-0 border-l border-dc-border disabled:opacity-50 disabled:cursor-not-allowed"
+          className="isle-btn isle-btn-primary px-4 py-3 text-xs rounded-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "..." : "SEARCH"}
+          {loading ? "..." : "Search"}
         </button>
       </div>
     </form>

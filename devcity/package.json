@@ -3,13 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "description": "DevCity — The developer's living city. Your code builds the world.",
-  "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "lint": "turbo lint",
-    "type-check": "turbo type-check",
-    "clean": "turbo clean"
-  },
+ "scripts": {
+  "dev": "vite",
+  "build": "tsc -b && vite build",
+  "lint": "eslint .",
+  "preview": "vite --preview",
+
+  "agents": "tsx scripts/agents/run-agents.ts",
+  "agents:watch": "chokidar \"src/**/*.{ts,tsx}\" -c \"npm run agents\" --debounce 3000",
+  "agents:delete-old": "tsx scripts/agents/delete-old-agents.ts",
+  "agents:report": "node -e \"const fs=require('fs'),p=require('path');const d='.antigravity/reports';try{const f=fs.readdirSync(d).filter(x=>x.endsWith('.json')).sort().reverse()[0];f?console.log(fs.readFileSync(p.join(d,f),'utf-8')):console.log('No reports yet')}catch{console.log('No reports folder yet')}\"",
+  "agents:health": "node -e \"try{const s=require('./.antigravity/memory/ecosystem-state.json');const h=s.codebase_health_history||[];console.log(h.length?'Score: '+h[h.length-1].score+'/100':'No data yet')}catch(e){console.log('No health data yet')}\"",
+
+  "agent:tide-watcher": "tsx scripts/agents/run-agents.ts",
+  "agent:storm-detector": "tsx scripts/agents/run-agents.ts",
+  "agent:wave-rider": "tsx scripts/agents/run-agents.ts",
+  "agent:terrain-keeper": "tsx scripts/agents/run-agents.ts",
+  "agent:compass-rose": "tsx scripts/agents/run-agents.ts"
+},
   "packageManager": "pnpm@10.30.3",
   "engines": {
     "node": ">=20.0.0"

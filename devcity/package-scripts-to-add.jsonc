@@ -1,0 +1,28 @@
+// ─── ADD THESE TO YOUR package.json scripts ───────────────────────────────────
+// Open your package.json and add the "scripts" entries below.
+// Also add the "devDependencies" entries.
+
+{
+  "scripts": {
+    // ── AGENT COMMANDS ──────────────────────────────────────────────────────
+    "agents":              "tsx scripts/agents/run-agents.ts",
+    "agents:watch":        "chokidar \"src/**/*.{ts,tsx}\" -c \"npm run agents\" --debounce 3000",
+    "agents:delete-old":   "tsx scripts/agents/delete-old-agents.ts",
+    "agents:report":       "node -e \"const fs=require('fs'),p=require('path');const d='.antigravity/reports';const f=fs.readdirSync(d).filter(x=>x.endsWith('.json')).sort().reverse()[0];f?console.log(fs.readFileSync(p.join(d,f),'utf-8')):console.log('No reports yet')\"",
+    "agents:health":       "node -e \"try{const s=require('./.antigravity/memory/ecosystem-state.json');const h=s.codebase_health_history||[];console.log(h.length?'Score: '+h[h.length-1].score+'/100':'No data yet')}catch(e){console.log('No health data')}\"",
+
+    // ── INDIVIDUAL AGENTS ───────────────────────────────────────────────────
+    "agent:tide-watcher":    "SINGLE_AGENT=01-tide-watcher    tsx scripts/agents/run-agents.ts",
+    "agent:storm-detector":  "SINGLE_AGENT=04-storm-detector  tsx scripts/agents/run-agents.ts",
+    "agent:wave-rider":      "SINGLE_AGENT=02-wave-rider       tsx scripts/agents/run-agents.ts",
+    "agent:terrain-keeper":  "SINGLE_AGENT=03-terrain-keeper   tsx scripts/agents/run-agents.ts",
+    "agent:compass-rose":    "SINGLE_AGENT=05-compass-rose     tsx scripts/agents/run-agents.ts",
+    "agent:cartographer":    "SINGLE_AGENT=06-cartographer-ai  tsx scripts/agents/run-agents.ts"
+  },
+
+  "devDependencies": {
+    "tsx":            "^4.0.0",
+    "chokidar-cli":   "^3.0.0",
+    "@types/node":    "^20.0.0"
+  }
+}

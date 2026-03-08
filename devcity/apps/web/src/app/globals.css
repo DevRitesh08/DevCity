@@ -1,46 +1,64 @@
 @import "tailwindcss";
 
-/* ─── DevCity Neon Terminal Design System ───────────────────── */
-/* Cyberpunk aesthetic: glassmorphic panels, neon accents,       */
-/* JetBrains Mono + Orbitron fonts. NOT pixel art.               */
+/* ─── ISLEFOLIO — Island Folio Design System ────────────────── */
+/* Low-poly island nature aesthetic: warm tones, natural light,   */
+/* Amatic SC (display) + Nunito (body) fonts.                     */
 
 @theme {
   /* ── Background Colors ── */
-  --color-dc-void: #0A0A0F;
-  --color-dc-surface: #0D1117;
-  --color-dc-elevated: #161B22;
-  --color-dc-steel: #21262D;
-  --color-dc-panel: rgba(13, 17, 23, 0.85);
+  --color-isle-deep: #0e2a3a;
+  --color-isle-surface: #133347;
+  --color-isle-elevated: #1a4560;
+  --color-isle-steel: #1f5577;
+  --color-isle-panel: rgba(14, 42, 58, 0.88);
 
-  /* ── Neon Accent Colors ── */
-  --color-dc-cyan: #00FFFF;
-  --color-dc-magenta: #FF00FF;
-  --color-dc-green: #39FF14;
-  --color-dc-amber: #FFB000;
-  --color-dc-pink: #FF1493;
-  --color-dc-blue: #0066FF;
+  /* ── Island Accent Colors ── */
+  --color-isle-ocean: #1a6b8a;
+  --color-isle-forest: #4a7c59;
+  --color-isle-sand: #f0db4f;
+  --color-isle-sunset: #e07a3a;
+  --color-isle-coral: #e06070;
+  --color-isle-sky: #87ceeb;
 
   /* ── Text Colors ── */
-  --color-dc-text: #F0F6FC;
-  --color-dc-text-secondary: #C9D1D9;
-  --color-dc-text-muted: #8B949E;
-  --color-dc-text-dim: #484F58;
+  --color-isle-text: #f5f0e8;
+  --color-isle-text-secondary: #d4cfc4;
+  --color-isle-text-muted: #9a9588;
+  --color-isle-text-dim: #6a655e;
 
   /* ── Border Colors ── */
-  --color-dc-border: rgba(0, 255, 255, 0.15);
-  --color-dc-border-active: rgba(0, 255, 255, 0.5);
+  --color-isle-border: rgba(26, 107, 138, 0.25);
+  --color-isle-border-active: rgba(26, 107, 138, 0.6);
 
-  /* ── Legacy compatibility aliases ── */
-  --color-bg: #0A0A0F;
-  --color-bg-raised: #0D1117;
-  --color-bg-card: #161B22;
-  --color-border: rgba(0, 255, 255, 0.15);
-  --color-border-light: rgba(0, 255, 255, 0.3);
-  --color-cream: #F0F6FC;
-  --color-muted: #8B949E;
-  --color-dim: #484F58;
-  --color-accent: #00FFFF;
-  --color-accent-hover: #33FFFF;
+  /* ── Backward-compat aliases (used by existing components) ── */
+  --color-dc-void: #0e2a3a;
+  --color-dc-surface: #133347;
+  --color-dc-elevated: #1a4560;
+  --color-dc-steel: #1f5577;
+  --color-dc-panel: rgba(14, 42, 58, 0.88);
+  --color-dc-cyan: #1a6b8a;
+  --color-dc-magenta: #e06070;
+  --color-dc-green: #4a7c59;
+  --color-dc-amber: #f0db4f;
+  --color-dc-pink: #e06070;
+  --color-dc-blue: #1a6b8a;
+  --color-dc-text: #f5f0e8;
+  --color-dc-text-secondary: #d4cfc4;
+  --color-dc-text-muted: #9a9588;
+  --color-dc-text-dim: #6a655e;
+  --color-dc-border: rgba(26, 107, 138, 0.25);
+  --color-dc-border-active: rgba(26, 107, 138, 0.6);
+
+  --color-bg: #0e2a3a;
+  --color-bg-raised: #133347;
+  --color-bg-card: #1a4560;
+  --color-border: rgba(26, 107, 138, 0.25);
+  --color-border-light: rgba(26, 107, 138, 0.4);
+  --color-cream: #f5f0e8;
+  --color-muted: #9a9588;
+  --color-dim: #6a655e;
+  --color-accent: #1a6b8a;
+  --color-accent-hover: #2a8baa;
 
   /* Achievement tier colors */
   --color-tier-bronze: #cd7f32;
@@ -49,102 +67,159 @@
   --color-tier-diamond: #b9f2ff;
 
   /* ── Fonts ── */
+  --font-body: "Nunito", system-ui, sans-serif;
+  --font-display: "Amatic SC", cursive;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
-  --font-display: "Orbitron", "Rajdhani", sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Nunito", system-ui, sans-serif;
 }
 
 /* ─── Base Styles ───────────────────────────────────────────── */
 
 body {
-  background-color: var(--color-dc-void);
-  color: var(--color-dc-text);
-  font-family: var(--font-mono);
+  background-color: var(--color-isle-deep);
+  color: var(--color-isle-text);
+  font-family: var(--font-body);
 }
 
-/* ─── Neon Terminal Components ──────────────────────────────── */
+/* ─── Island Folio Components ──────────────────────────────── */
 
-/* Glassmorphic panel — primary container */
-.neon-panel {
-  background: var(--color-dc-panel);
+/* Frosted panel — primary container */
+.isle-panel {
+  background: var(--color-isle-panel);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-dc-border);
+  border: 1px solid var(--color-isle-border);
+  border-radius: 12px;
+}
+
+/* Backward compat for existing neon-panel references */
+.neon-panel {
+  background: var(--color-isle-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-isle-border);
+  border-radius: 8px;
   position: relative;
 }
 
-/* Corner accents — "L" shaped neon marks */
-.neon-panel::before,
-.neon-panel::after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-color: var(--color-dc-cyan);
-  pointer-events: none;
-}
-
-.neon-panel::before {
-  top: -1px;
-  left: -1px;
-  border-top: 2px solid;
-  border-left: 2px solid;
-}
-
-.neon-panel::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 2px solid;
-  border-right: 2px solid;
-}
-
-/* Neon glow button */
-.holo-btn {
-  background: transparent;
-  border: 1px solid var(--color-dc-cyan);
-  color: var(--color-dc-cyan);
-  font-family: var(--font-mono);
+/* Warm wooden button */
+.isle-btn {
+  background: linear-gradient(135deg, #1a6b8a 0%, #2a8baa 100%);
+  border: none;
+  color: #f5f0e8;
+  font-family: var(--font-body);
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.05em;
   padding: 0.625rem 1.5rem;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  position: relative;
+  box-shadow: 0 2px 8px rgba(26, 107, 138, 0.3);
+}
+
+.isle-btn:hover {
+  background: linear-gradient(135deg, #2a8baa 0%, #3a9bba 100%);
+  box-shadow: 0 4px 16px rgba(26, 107, 138, 0.4);
+  transform: translateY(-1px);
+}
+
+.isle-btn-secondary {
+  background: transparent;
+  border: 2px solid var(--color-isle-ocean);
+  color: var(--color-isle-ocean);
+  box-shadow: none;
+}
+
+.isle-btn-secondary:hover {
+  background: rgba(26, 107, 138, 0.1);
+  box-shadow: 0 2px 8px rgba(26, 107, 138, 0.2);
+}
+
+/* Backward compat for holo-btn */
+.holo-btn {
+  background: linear-gradient(135deg, #1a6b8a 0%, #2a8baa 100%);
+  border: none;
+  color: #f5f0e8;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.625rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(26, 107, 138, 0.3);
 }
 
 .holo-btn:hover {
-  background: rgba(0, 255, 255, 0.1);
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.05);
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  background: linear-gradient(135deg, #2a8baa 0%, #3a9bba 100%);
+  box-shadow: 0 4px 16px rgba(26, 107, 138, 0.4);
+  transform: translateY(-1px);
 }
 
 .holo-btn-primary {
-  background: rgba(0, 255, 255, 0.15);
-  border-color: var(--color-dc-cyan);
+  background: linear-gradient(135deg, #4a7c59 0%, #5a9c69 100%);
 }
 
-/* Neon input */
-.neon-input {
-  background: rgba(13, 17, 23, 0.9);
-  border: 1px solid var(--color-dc-border);
-  color: var(--color-dc-text);
-  font-family: var(--font-mono);
+.holo-btn-primary:hover {
+  background: linear-gradient(135deg, #5a9c69 0%, #6aac79 100%);
+}
+
+/* Natural input */
+.isle-input {
+  background: rgba(14, 42, 58, 0.9);
+  border: 1px solid var(--color-isle-border);
+  color: var(--color-isle-text);
+  font-family: var(--font-body);
   padding: 0.75rem 1rem;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.isle-input:focus {
+  border-color: var(--color-isle-ocean);
+  box-shadow: 0 0 0 3px rgba(26, 107, 138, 0.15);
+}
+
+.isle-input::placeholder {
+  color: var(--color-isle-text-dim);
+}
+
+/* Backward compat */
+.neon-input {
+  background: rgba(14, 42, 58, 0.9);
+  border: 1px solid var(--color-isle-border);
+  color: var(--color-isle-text);
+  font-family: var(--font-body);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
   outline: none;
   transition: all 0.2s ease;
 }
 
 .neon-input:focus {
-  border-color: var(--color-dc-cyan);
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.15), inset 0 0 15px rgba(0, 255, 255, 0.03);
+  border-color: var(--color-isle-ocean);
+  box-shadow: 0 0 0 3px rgba(26, 107, 138, 0.15);
 }
 
 .neon-input::placeholder {
-  color: var(--color-dc-text-dim);
+  color: var(--color-isle-text-dim);
 }
 
-/* ─── Scrollbar (cyberpunk) ─────────────────────────────────── */
+/* 3D tooltip for island structures */
+.isle-tooltip {
+  background: rgba(14, 42, 58, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(26, 107, 138, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #f5f0e8;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
 
 ::-webkit-scrollbar {
   width: 6px;
@@ -152,23 +227,23 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-dc-void);
+  background: var(--color-isle-deep);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 255, 0.2);
-  border: 1px solid rgba(0, 255, 255, 0.1);
+  background: rgba(26, 107, 138, 0.3);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 255, 0.4);
+  background: rgba(26, 107, 138, 0.5);
 }
 
 /* ─── Selection ─────────────────────────────────────────────── */
 
 ::selection {
-  background-color: rgba(0, 255, 255, 0.3);
-  color: #fff;
+  background-color: rgba(26, 107, 138, 0.3);
+  color: #f5f0e8;
 }
 
 /* ─── Animations ────────────────────────────────────────────── */
@@ -183,36 +258,9 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes neonPulse {
-  0%, 100% {
-    text-shadow: 0 0 10px rgba(0,255,255,0.4), 0 0 20px rgba(0,255,255,0.2);
-  }
-  50% {
-    text-shadow: 0 0 20px rgba(0,255,255,0.7), 0 0 40px rgba(0,255,255,0.4), 0 0 80px rgba(0,255,255,0.2);
-  }
-}
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-
-@keyframes glitch {
-  0%, 100% { transform: translate(0); }
-  20% { transform: translate(-2px, 1px); }
-  40% { transform: translate(2px, -1px); }
-  60% { transform: translate(-1px, -1px); }
-  80% { transform: translate(1px, 2px); }
-}
-
-@keyframes neonFlicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-  20%, 24%, 55% { opacity: 0.6; }
-}
-
-@keyframes gridScroll {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(40px, 40px); }
+@keyframes gentleWave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 @keyframes float {
@@ -220,19 +268,26 @@ body {
   50% { transform: translateY(-8px); }
 }
 
-@keyframes buildingRise {
-  0% { opacity: 0; transform: scaleY(0); transform-origin: bottom; }
-  100% { opacity: 0.6; transform: scaleY(1); transform-origin: bottom; }
+@keyframes shimmer {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 
-@keyframes terminalBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+@keyframes islandRise {
+  0% { opacity: 0; transform: translateY(20px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@keyframes dataStream {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 0% 100%; }
+@keyframes waveSway {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(8px); }
+}
+
+@keyframes loadingBar {
+  0% { width: 0%; }
+  50% { width: 80%; }
+  100% { width: 100%; }
 }
 
 .animate-fade-in {
@@ -240,50 +295,35 @@ body {
 }
 
 .animate-slide-up {
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.5s ease-out;
 }
 
-.animate-neon-pulse {
-  animation: neonPulse 3s ease-in-out infinite;
+.animate-wave {
+  animation: gentleWave 3s ease-in-out infinite;
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
-.animate-grid-scroll {
-  animation: gridScroll 20s linear infinite;
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
 }
 
-.animate-neon-flicker {
-  animation: neonFlicker 4s linear infinite;
+/* Text glow utilities — island themed */
+.text-glow-ocean {
+  text-shadow: 0 0 10px rgba(26, 107, 138, 0.5), 0 0 30px rgba(26, 107, 138, 0.2);
 }
 
-/* Scanline overlay */
-.scanline-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 255, 255, 0.015) 2px,
-    rgba(0, 255, 255, 0.015) 4px
-  );
+.text-glow-forest {
+  text-shadow: 0 0 10px rgba(74, 124, 89, 0.5), 0 0 30px rgba(74, 124, 89, 0.2);
 }
 
-/* Neon text glow utility */
+/* Backward compat */
 .text-glow-cyan {
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.2);
+  text-shadow: 0 0 10px rgba(26, 107, 138, 0.5), 0 0 30px rgba(26, 107, 138, 0.2);
 }
 
-.text-glow-magenta {
-  text-shadow: 0 0 10px rgba(255, 0, 255, 0.5), 0 0 30px rgba(255, 0, 255, 0.2);
-}
-
-/* Box glow utility */
 .box-glow-cyan {
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2), inset 0 0 15px rgba(0, 255, 255, 0.03);
+  box-shadow: 0 4px 16px rgba(26, 107, 138, 0.2);
 }
