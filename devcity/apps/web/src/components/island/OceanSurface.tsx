@@ -1,6 +1,7 @@
 // ─── Ocean Surface ─────────────────────────────────────────────
-// Animated water plane with vertex displacement for waves.
-// Low-poly aesthetic matching the island theme.
+// VISUAL_UPGRADE_SPEC v1.0 — CANONICAL OCEAN SHADER
+// Custom GLSL vertex/fragment shader for animated waves.
+// Deep-to-shallow color gradient with foam highlights.
 
 "use client";
 
@@ -8,57 +9,109 @@ import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+// ── VERTEX SHADER ─────────────────────────────────────────────────────────
+const OCEAN_VERT = /* glsl */ `
+  uniform float uTime;
+  uniform float uBigWavesElevation;
+  uniform float uBigWavesFrequency;
+  uniform float uBigWavesSpeed;
+
+  varying vec2  vUv;
+  varying float vElevation;
+
+  void main() {
+    vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+
+    // Two overlapping sine waves for organic feel
+    float elevation =
+      sin(modelPosition.x * uBigWavesFrequency + uTime * uBigWavesSpeed) *
+      sin(modelPosition.z * uBigWavesFrequency * 0.8 + uTime * uBigWavesSpeed * 0.7) *
+      uBigWavesElevation;
+
+    // Small ripples on top
+    elevation += sin(modelPosition.x * 3.0 + uTime * 2.0) * 0.02;
+    elevation += sin(modelPosition.z * 2.5 + uTime * 1.7) * 0.015;
+
+    modelPosition.y += elevation;
+
+    vElevation = elevation;
+    vUv = uv;
+
+    gl_Position = projectionMatrix * viewMatrix * modelPosition;
+  }
+`;
+
+// ── FRAGMENT SHADER ───────────────────────────────────────────────────────
+const OCEAN_FRAG = /* glsl */ `
+  uniform vec3  uDepthColor;
+  uniform vec3  uSurfaceColor;
+  uniform float uColorOffset;
+  uniform float uColorMultiplier;
+  uniform float uAlpha;
+
+  varying float vElevation;
+
+  void main() {
+    // Blend deep/surface color based on wave height
+    float mixStrength = (vElevation + uColorOffset) * uColorMultiplier;
+    mixStrength = clamp(mixStrength, 0.0, 1.0);
+
+    vec3 color = mix(uDepthColor, uSurfaceColor, mixStrength);
+
+    // Foam highlight at wave peaks
+    float foam = smoothstep(0.05, 0.12, vElevation);
+    color = mix(color, vec3(0.93, 0.96, 0.98), foam * 0.4);
+
+    gl_FragColor = vec4(color, uAlpha);
+  }
+`;
+
+// ── COMPONENT ─────────────────────────────────────────────────────────────
 interface OceanSurfaceProps {
   size?: number;
-  color?: string;
-  opacity?: number;
+  segments?: number;
+  yPosition?: number;
 }
 
 export default function OceanSurface({
-  size = 500,
-  color = "#1a6b8a",
-  opacity = 0.85,
+  size = 400,
+  segments = 128,
+  yPosition = -0.3,
 }: OceanSurfaceProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const matRef = useRef<THREE.ShaderMaterial>(null);
 
-  const geometry = useMemo(() => {
-    const geo = new THREE.PlaneGeometry(size, size, 64, 64);
-    geo.rotateX(-Math.PI / 2);
-    return geo;
-  }, [size]);
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uBigWavesElevation: { value: 0.15 },
+      uBigWavesFrequency: { value: 0.7 },
+      uBigWavesSpeed: { value: 0.5 },
+      uDepthColor: { value: new THREE.Color("#1a6b8a") }, // PALETTE.ocean_deep
+      uSurfaceColor: { value: new THREE.Color("#4ecdc4") }, // PALETTE.ocean_shallow
+      uColorOffset: { value: 0.12 },
+      uColorMultiplier: { value: 5.0 },
+      uAlpha: { value: 0.88 },
+    }),
+    []
+  );
 
-  useFrame(({ clock }) => {
-    if (!meshRef.current) return;
-    const geo = meshRef.current.geometry;
-    const positions = geo.attributes.position;
-    const time = clock.elapsedTime;
-
-    for (let i = 0; i < positions.count; i++) {
-      const x = positions.getX(i);
-      const z = positions.getZ(i);
-
-      // Multi-frequency waves
-      const wave1 = Math.sin(x * 0.05 + time * 0.8) * 0.3;
-      const wave2 = Math.sin(z * 0.07 + time * 0.6) * 0.2;
-      const wave3 = Math.sin((x + z) * 0.03 + time * 0.4) * 0.15;
-
-      positions.setY(i, wave1 + wave2 + wave3 - 0.5);
+  useFrame((state) => {
+    if (matRef.current) {
+      matRef.current.uniforms.uTime.value = state.clock.elapsedTime;
     }
-
-    positions.needsUpdate = true;
-    geo.computeVertexNormals();
   });
 
   return (
-    <mesh ref={meshRef} geometry={geometry} receiveShadow position={[0, -0.5, 0]}>
-      <meshStandardMaterial
-        color={color}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, yPosition, 0]}>
+      <planeGeometry args={[size, size, segments, segments]} />
+      <shaderMaterial
+        ref={matRef}
+        vertexShader={OCEAN_VERT}
+        fragmentShader={OCEAN_FRAG}
+        uniforms={uniforms}
         transparent
-        opacity={opacity}
-        roughness={0.3}
-        metalness={0.1}
-        side={THREE.DoubleSide}
-        flatShading
+        side={THREE.FrontSide}
+        depthWrite={false}
       />
     </mesh>
   );

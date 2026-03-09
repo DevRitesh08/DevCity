@@ -1,17 +1,21 @@
 // ─── Island Canvas ─────────────────────────────────────────────
+// VISUAL_UPGRADE_SPEC v1.0 — CANONICAL POST-PROCESSING STACK
 // The root Three.js canvas for ISLEFOLIO.
-// Renders: ocean, island terrain, structures, sky, post-processing.
+// 8. POST-PROCESSING — last in scene, wraps everything.
 
 "use client";
 
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stats, PerformanceMonitor } from "@react-three/drei";
+import { OrbitControls, PerformanceMonitor } from "@react-three/drei";
 import {
   EffectComposer,
   Bloom,
   Vignette,
+  HueSaturation,
+  BrightnessContrast,
 } from "@react-three/postprocessing";
+import { BlendFunction, KernelSize } from "postprocessing";
 import * as THREE from "three";
 import IslandScene from "./IslandScene";
 import type { RepoStructure } from "./IslandStructures";
@@ -21,7 +25,6 @@ interface IslandCanvasProps {
   repos: RepoStructure[];
   islandRadius?: number;
   primaryLanguage?: string;
-  showStats?: boolean;
   onStructureClick?: (repo: RepoStructure) => void;
 }
 
@@ -30,7 +33,6 @@ export default function IslandCanvas({
   repos,
   islandRadius = 20,
   primaryLanguage = "default",
-  showStats = false,
   onStructureClick,
 }: IslandCanvasProps) {
   return (
@@ -48,7 +50,6 @@ export default function IslandCanvas({
           toneMappingExposure: 1.0,
         }}
         dpr={[1, 2]}
-        shadows
       >
         <PerformanceMonitor>
           <Suspense fallback={null}>
@@ -61,15 +62,33 @@ export default function IslandCanvas({
             />
           </Suspense>
 
-          {/* Post-processing — subtle for natural look */}
-          <EffectComposer>
+          {/* VISUAL_UPGRADE_SPEC v1.0 — CANONICAL POST-PROCESSING STACK */}
+          <EffectComposer multisampling={0}>
+            {/* BLOOM — only emissive materials (lighthouse, windows, fireflies) */}
             <Bloom
-              intensity={0.3}
-              luminanceThreshold={0.8}
+              intensity={0.35}
+              luminanceThreshold={0.55}
               luminanceSmoothing={0.9}
+              kernelSize={KernelSize.MEDIUM}
               mipmapBlur
             />
-            <Vignette eskil={false} offset={0.15} darkness={0.4} />
+
+            {/* COLOR GRADE — warm, slightly golden, tropical feel */}
+            <HueSaturation
+              blendFunction={BlendFunction.NORMAL}
+              hue={0.02}
+              saturation={0.12}
+            />
+
+            {/* CONTRAST — punch up the low-poly faces */}
+            <BrightnessContrast brightness={0.02} contrast={0.12} />
+
+            {/* VIGNETTE — focus the eye on the island center */}
+            <Vignette
+              darkness={0.45}
+              offset={0.35}
+              blendFunction={BlendFunction.NORMAL}
+            />
           </EffectComposer>
 
           {/* Camera controls */}
@@ -89,8 +108,6 @@ export default function IslandCanvas({
               TWO: THREE.TOUCH.DOLLY_PAN,
             }}
           />
-
-          {showStats && <Stats />}
         </PerformanceMonitor>
       </Canvas>
     </div>

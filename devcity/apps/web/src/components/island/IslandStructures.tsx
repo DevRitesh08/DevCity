@@ -1,6 +1,7 @@
 // ─── Island Structures ─────────────────────────────────────────
+// VISUAL_UPGRADE_SPEC v1.0 — LAW 1 + LAW 4
 // Renders repo buildings as island structures (cottages, lighthouses, etc.)
-// Each structure type is determined by the repo's primary language/purpose.
+// All materials: MeshLambertMaterial + flatShading. No exceptions.
 
 "use client";
 
@@ -9,6 +10,7 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { seededRandom } from "@/lib/building";
+import { PALETTE } from "@/lib/palette";
 
 // ─── Structure Types ───────────────────────────────────────────
 
@@ -18,20 +20,21 @@ interface StructureConfig {
   height: number;
 }
 
+// VISUAL_UPGRADE_SPEC v1.0 — All colors from CANONICAL PALETTE
 const STRUCTURE_MAP: Record<string, StructureConfig> = {
-  JavaScript: { shape: "cottage", color: "#f0db4f", height: 2.5 },
-  TypeScript: { shape: "tower", color: "#3178c6", height: 3.0 },
-  Python: { shape: "hut", color: "#306998", height: 2.0 },
-  Rust: { shape: "workshop", color: "#dea584", height: 2.8 },
-  Ruby: { shape: "cottage", color: "#cc342d", height: 2.2 },
-  Go: { shape: "tower", color: "#00add8", height: 2.5 },
-  "C++": { shape: "workshop", color: "#659ad2", height: 3.0 },
-  C: { shape: "workshop", color: "#555555", height: 2.8 },
-  Java: { shape: "tower", color: "#ed8b00", height: 3.2 },
-  Swift: { shape: "lighthouse", color: "#fa7343", height: 3.5 },
-  Kotlin: { shape: "cottage", color: "#7f52ff", height: 2.5 },
-  PHP: { shape: "hut", color: "#777bb4", height: 2.0 },
-  default: { shape: "cottage", color: "#95a5a6", height: 2.0 },
+  JavaScript: { shape: "cottage", color: PALETTE.biome_tropical, height: 2.5 },
+  TypeScript: { shape: "tower", color: PALETTE.biome_pine, height: 3.0 },
+  Python: { shape: "hut", color: PALETTE.biome_savanna, height: 2.0 },
+  Rust: { shape: "workshop", color: PALETTE.biome_volcanic, height: 2.8 },
+  Ruby: { shape: "cottage", color: PALETTE.biome_cherry, height: 2.2 },
+  Go: { shape: "tower", color: PALETTE.biome_tundra, height: 2.5 },
+  "C++": { shape: "workshop", color: PALETTE.biome_ancient, height: 3.0 },
+  C: { shape: "workshop", color: PALETTE.biome_ancient, height: 2.8 },
+  Java: { shape: "tower", color: PALETTE.sky_golden, height: 3.2 },
+  Swift: { shape: "lighthouse", color: PALETTE.biome_coastal, height: 3.5 },
+  Kotlin: { shape: "cottage", color: PALETTE.biome_highland, height: 2.5 },
+  PHP: { shape: "hut", color: PALETTE.biome_wetland, height: 2.0 },
+  default: { shape: "cottage", color: PALETTE.rock_warm, height: 2.0 },
 };
 
 // ─── Repo Structure Data ───────────────────────────────────────
@@ -158,32 +161,32 @@ function Structure({ repo, position, rotation, onClick }: StructureProps) {
 
 // ─── Structure Geometries ──────────────────────────────────────
 
-function Lighthouse({ color, height, hovered }: { color: string; height: number; hovered: boolean }) {
+function Lighthouse({ height, hovered }: { color: string; height: number; hovered: boolean }) {
   return (
     <group>
-      {/* Tower body */}
-      <mesh position={[0, height / 2, 0]} castShadow>
+      {/* Tower body — VISUAL_UPGRADE_SPEC v1.0 — PALETTE.lighthouse_body */}
+      <mesh position={[0, height / 2, 0]}>
         <cylinderGeometry args={[0.3, 0.5, height, 6]} />
-        <meshStandardMaterial color="#f5f0e8" flatShading roughness={0.8} />
+        <meshLambertMaterial color={PALETTE.lighthouse_body} flatShading />
       </mesh>
-      {/* Cone top */}
-      <mesh position={[0, height + 0.3, 0]} castShadow>
+      {/* Cone top — PALETTE.lighthouse_top */}
+      <mesh position={[0, height + 0.3, 0]}>
         <coneGeometry args={[0.5, 0.8, 6]} />
-        <meshStandardMaterial color="#8b4513" flatShading roughness={0.9} />
+        <meshLambertMaterial color={PALETTE.lighthouse_top} flatShading />
       </mesh>
-      {/* Light beacon */}
+      {/* Light beacon — emissive allowed (LAW 6 exception) */}
       <mesh position={[0, height, 0]}>
         <sphereGeometry args={[0.2, 8, 8]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
+        <meshLambertMaterial
+          color={PALETTE.emit_lighthouse}
+          emissive={new THREE.Color(PALETTE.emit_lighthouse)}
           emissiveIntensity={hovered ? 3 : 1.5}
         />
       </mesh>
       {/* Glow light */}
       <pointLight
         position={[0, height, 0]}
-        color={color}
+        color={PALETTE.emit_lighthouse}
         intensity={hovered ? 3 : 1}
         distance={8}
         decay={2}
@@ -195,21 +198,20 @@ function Lighthouse({ color, height, hovered }: { color: string; height: number;
 function Cottage({ color, height, hovered }: { color: string; height: number; hovered: boolean }) {
   return (
     <group>
-      {/* Walls */}
-      <mesh position={[0, height / 2, 0]} castShadow>
+      {/* Walls — PALETTE.wood_warm */}
+      <mesh position={[0, height / 2, 0]}>
         <boxGeometry args={[1.2, height, 1]} />
-        <meshStandardMaterial
-          color="#d4a76a"
+        <meshLambertMaterial
+          color={PALETTE.wood_warm}
           flatShading
-          roughness={0.95}
-          emissive={hovered ? color : "#000000"}
+          emissive={hovered ? new THREE.Color(PALETTE.emit_window) : undefined}
           emissiveIntensity={hovered ? 0.15 : 0}
         />
       </mesh>
-      {/* Roof */}
-      <mesh position={[0, height + 0.4, 0]} castShadow>
+      {/* Roof — biome accent color */}
+      <mesh position={[0, height + 0.4, 0]}>
         <coneGeometry args={[1, 0.9, 4]} />
-        <meshStandardMaterial color={color} flatShading roughness={0.9} />
+        <meshLambertMaterial color={color} flatShading />
       </mesh>
     </group>
   );
@@ -218,26 +220,25 @@ function Cottage({ color, height, hovered }: { color: string; height: number; ho
 function Workshop({ color, height, hovered }: { color: string; height: number; hovered: boolean }) {
   return (
     <group>
-      {/* Wide base */}
-      <mesh position={[0, height * 0.4, 0]} castShadow>
+      {/* Wide base — PALETTE.workshop_wall */}
+      <mesh position={[0, height * 0.4, 0]}>
         <boxGeometry args={[1.6, height * 0.8, 1.2]} />
-        <meshStandardMaterial
-          color="#8b7355"
+        <meshLambertMaterial
+          color={PALETTE.workshop_wall}
           flatShading
-          roughness={0.95}
-          emissive={hovered ? color : "#000000"}
+          emissive={hovered ? new THREE.Color(PALETTE.emit_window) : undefined}
           emissiveIntensity={hovered ? 0.15 : 0}
         />
       </mesh>
-      {/* Chimney */}
-      <mesh position={[0.5, height, 0]} castShadow>
+      {/* Chimney — PALETTE.rock_dark */}
+      <mesh position={[0.5, height, 0]}>
         <cylinderGeometry args={[0.15, 0.2, height * 0.5, 6]} />
-        <meshStandardMaterial color="#555" flatShading roughness={0.8} />
+        <meshLambertMaterial color={PALETTE.rock_dark} flatShading />
       </mesh>
-      {/* Roof */}
-      <mesh position={[0, height * 0.85, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+      {/* Roof — biome accent color */}
+      <mesh position={[0, height * 0.85, 0]} rotation={[0, Math.PI / 4, 0]}>
         <boxGeometry args={[1.8, 0.15, 1.4]} />
-        <meshStandardMaterial color={color} flatShading roughness={0.9} />
+        <meshLambertMaterial color={color} flatShading />
       </mesh>
     </group>
   );
@@ -246,26 +247,25 @@ function Workshop({ color, height, hovered }: { color: string; height: number; h
 function Tower({ color, height, hovered }: { color: string; height: number; hovered: boolean }) {
   return (
     <group>
-      {/* Stone tower */}
-      <mesh position={[0, height / 2, 0]} castShadow>
+      {/* Stone tower — PALETTE.stone_wall */}
+      <mesh position={[0, height / 2, 0]}>
         <cylinderGeometry args={[0.4, 0.6, height, 8]} />
-        <meshStandardMaterial
-          color="#8a8a7a"
+        <meshLambertMaterial
+          color={PALETTE.stone_wall}
           flatShading
-          roughness={0.9}
-          emissive={hovered ? color : "#000000"}
+          emissive={hovered ? new THREE.Color(PALETTE.emit_window) : undefined}
           emissiveIntensity={hovered ? 0.15 : 0}
         />
       </mesh>
-      {/* Flag on top */}
-      <mesh position={[0.3, height + 0.5, 0]} castShadow>
+      {/* Flag on top — biome accent */}
+      <mesh position={[0.3, height + 0.5, 0]}>
         <boxGeometry args={[0.5, 0.3, 0.05]} />
-        <meshStandardMaterial color={color} flatShading />
+        <meshLambertMaterial color={color} flatShading />
       </mesh>
-      {/* Flagpole */}
+      {/* Flagpole — PALETTE.rock_dark */}
       <mesh position={[0, height + 0.3, 0]}>
         <cylinderGeometry args={[0.03, 0.03, 0.8, 4]} />
-        <meshStandardMaterial color="#5a3a1a" flatShading />
+        <meshLambertMaterial color={PALETTE.rock_dark} flatShading />
       </mesh>
     </group>
   );
@@ -274,21 +274,20 @@ function Tower({ color, height, hovered }: { color: string; height: number; hove
 function Hut({ color, height, hovered }: { color: string; height: number; hovered: boolean }) {
   return (
     <group>
-      {/* Round hut body */}
-      <mesh position={[0, height * 0.4, 0]} castShadow>
+      {/* Round hut body — PALETTE.wood_warm */}
+      <mesh position={[0, height * 0.4, 0]}>
         <cylinderGeometry args={[0.6, 0.7, height * 0.6, 8]} />
-        <meshStandardMaterial
-          color="#c4a66a"
+        <meshLambertMaterial
+          color={PALETTE.wood_warm}
           flatShading
-          roughness={0.95}
-          emissive={hovered ? color : "#000000"}
+          emissive={hovered ? new THREE.Color(PALETTE.emit_window) : undefined}
           emissiveIntensity={hovered ? 0.15 : 0}
         />
       </mesh>
-      {/* Thatched roof */}
-      <mesh position={[0, height * 0.7, 0]} castShadow>
+      {/* Thatched roof — biome accent color */}
+      <mesh position={[0, height * 0.7, 0]}>
         <coneGeometry args={[0.85, height * 0.6, 8]} />
-        <meshStandardMaterial color={color} flatShading roughness={1} />
+        <meshLambertMaterial color={color} flatShading />
       </mesh>
     </group>
   );
@@ -297,23 +296,20 @@ function Hut({ color, height, hovered }: { color: string; height: number; hovere
 function Totem({ color, height, hovered }: { color: string; height: number; hovered: boolean }) {
   return (
     <group>
-      {/* Carved pole */}
-      <mesh position={[0, height / 2, 0]} castShadow>
+      {/* Carved pole — PALETTE.tree_trunk */}
+      <mesh position={[0, height / 2, 0]}>
         <cylinderGeometry args={[0.2, 0.25, height, 6]} />
-        <meshStandardMaterial
-          color="#6b4226"
+        <meshLambertMaterial
+          color={PALETTE.tree_trunk}
           flatShading
-          roughness={0.95}
-          emissive={hovered ? color : "#000000"}
-          emissiveIntensity={hovered ? 0.2 : 0}
         />
       </mesh>
-      {/* Top ornament */}
+      {/* Top ornament — emissive allowed for totem glow */}
       <mesh position={[0, height + 0.2, 0]}>
         <dodecahedronGeometry args={[0.3, 0]} />
-        <meshStandardMaterial
+        <meshLambertMaterial
           color={color}
-          emissive={color}
+          emissive={hovered ? new THREE.Color(color) : undefined}
           emissiveIntensity={hovered ? 2 : 0.5}
           flatShading
         />

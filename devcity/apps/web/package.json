@@ -22,6 +22,7 @@
     "framer-motion": "^12.35.1",
     "gsap": "^3.14.2",
     "next": "^15.2.0",
+    "postprocessing": "^6.38.3",
     "prisma": "^7.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

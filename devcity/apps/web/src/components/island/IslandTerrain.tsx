@@ -1,12 +1,14 @@
 // ─── Island Terrain ────────────────────────────────────────────
+// VISUAL_UPGRADE_SPEC v1.0 — CANONICAL TERRAIN SETUP
 // Renders a unique low-poly island from the username-seeded terrain.
-// Each developer gets a distinct island shape.
+// flatShading: true on ALL geometry. Always.
 
 "use client";
 
 import { useMemo } from "react";
 import * as THREE from "three";
 import { generateIslandTerrain, getBiomeColor } from "@/lib/terrainNoise";
+import { PALETTE } from "@/lib/palette";
 
 interface IslandTerrainProps {
   username: string;
@@ -47,12 +49,12 @@ export default function IslandTerrain({
     geo.setIndex(indices);
     geo.computeVertexNormals();
 
-    // Color vertices based on height
+    // VISUAL_UPGRADE_SPEC v1.0 — Vertex colors from CANONICAL PALETTE
     const colors = new Float32Array(vertices.length);
     const grassColor = new THREE.Color(biomeColor);
-    const sandColor = new THREE.Color("#e8d5a3");
-    const rockColor = new THREE.Color("#7a7a6a");
-    const snowColor = new THREE.Color("#f0f0f0");
+    const sandColor = new THREE.Color(PALETTE.sand_beach);
+    const rockColor = new THREE.Color(PALETTE.rock_warm);
+    const snowColor = new THREE.Color(PALETTE.snow_cap);
 
     for (let i = 0; i < vertices.length; i += 3) {
       const height = vertices[i + 1];
@@ -60,23 +62,18 @@ export default function IslandTerrain({
       let color: THREE.Color;
 
       if (height < 0.2) {
-        // Beach / shoreline
         color = sandColor;
       } else if (height < radius * 0.12) {
-        // Low grass
         color = grassColor.clone().lerp(sandColor, 0.3);
       } else if (height < radius * 0.2) {
-        // Grass
         color = grassColor;
       } else if (height < radius * 0.3) {
-        // Rock
         color = rockColor.clone().lerp(grassColor, 0.3);
       } else {
-        // Snow/peak
         color = snowColor.clone().lerp(rockColor, 0.4);
       }
 
-      // Fade to transparent at edges
+      // Fade to sand at edges
       if (dist > 0.85) {
         color.lerp(sandColor, (dist - 0.85) / 0.15);
       }
@@ -96,23 +93,19 @@ export default function IslandTerrain({
 
   return (
     <group>
-      {/* Main island terrain */}
-      <mesh geometry={geometry} castShadow receiveShadow>
-        <meshStandardMaterial
+      {/* MAIN TERRAIN — VISUAL_UPGRADE_SPEC v1.0 — LAW 1 + LAW 2 */}
+      <mesh geometry={geometry}>
+        <meshLambertMaterial
           vertexColors
           flatShading
-          roughness={0.9}
-          metalness={0}
         />
       </mesh>
 
-      {/* Beach ring at water level */}
+      {/* BEACH RING — VISUAL_UPGRADE_SPEC v1.0 — PALETTE.sand_beach */}
       <mesh geometry={beachGeometry} position={[0, 0.05, 0]}>
-        <meshStandardMaterial
-          color="#e8d5a3"
+        <meshLambertMaterial
+          color={PALETTE.sand_beach}
           flatShading
-          roughness={1}
-          metalness={0}
           transparent
           opacity={0.7}
         />
